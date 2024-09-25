@@ -9,7 +9,9 @@
 
 {% block content %}
     <p>Content</p>
-    {% if form %}
-        {{ render_form(form) }}
-    {% endif %}
+    {% for form in forms %}
+        <div style="border:1px solid black;">
+            {{ render_form(form) }}
+        </div>
+    {% endfor %}
 {% endblock %}
