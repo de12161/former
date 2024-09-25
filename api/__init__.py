@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf import CSRFProtect
 from werkzeug.utils import redirect
 
-from .forms import TestForm, AddFormForm
+from .forms import TestForm, AddFormForm, CustomForm
 
 from secrets import token_urlsafe
 
@@ -26,15 +26,20 @@ def index_get():
 
 @app.post('/')
 def index_post():
+    print('POST request received:')
+    for k, v in request.form.items():
+        print(f'{k} = {v}')
     return 'Request successful'
 
 
-@app.get('/add-form')
+@app.route('/add-form', methods=['GET', 'POST'])
 def add_form():
-    return render_template('add_form.html', form=AddFormForm())
-
-
-@app.post('/add-form')
-def add_form_post():
-    form_list.append(TestForm())
-    return redirect(url_for('add_form'))
+    form = AddFormForm()
+    if form.validate_on_submit():
+        form.fields.data = ''
+        new_form = CustomForm()
+        fields = request.form['fields'].split('\n')
+        for label in fields:
+            new_form.fields.append_entry().label = label
+        form_list.append(new_form)
+    return render_template('add_form.html', form=form)
