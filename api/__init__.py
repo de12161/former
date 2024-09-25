@@ -1,7 +1,9 @@
-from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
+from flask import Flask, render_template, request
+from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
+
+from .forms import TestForm
 
 from secrets import token_urlsafe
 
@@ -10,13 +12,19 @@ key = token_urlsafe(16)
 app = Flask(__name__)
 app.secret_key = key
 
-bootstrap = Bootstrap(app)
+bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.get('/')
+def index_get():
+    form = TestForm()
+    return render_template('index.html', form=form)
+
+
+@app.post('/')
+def index_post():
+    return 'Request successful'
 
 
 @app.route('/add-form')
