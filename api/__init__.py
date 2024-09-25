@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
 
@@ -10,7 +10,7 @@ key = token_urlsafe(16)
 app = Flask(__name__)
 app.secret_key = key
 
-bootstrap = Bootstrap(app)
+bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
 
