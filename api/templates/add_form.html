@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
 {% block title %}Forms{% endblock %}
+{% block nav %}
+    <a href="{{ url_for('index') }}">Index</a>
+    <b>Add form</b>
+{% endblock %}
 
 {% block content %}
 <p>Form content</p>
