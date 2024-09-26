@@ -25,6 +25,7 @@ class CustomForm(FlaskForm):
 
 
 class AddFormForm(FlaskForm):
+    form_name = StringField('Name', validators=[DataRequired()])
     fields = TextAreaField('Fields',
                            validators=[
                                DataRequired(),

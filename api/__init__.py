@@ -15,7 +15,7 @@ app.secret_key = key
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
-form_list = []
+form_list = {}
 
 
 @app.get('/')
@@ -46,5 +46,5 @@ def add_form():
             new_form.fields[-1].label = label.strip()
             new_form.fields[-1].value.name = label.strip()
 
-        form_list.append(new_form)
+        form_list[request.form['form_name']] = new_form
     return render_template('add_form.html', form=form)
