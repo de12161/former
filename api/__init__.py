@@ -29,6 +29,7 @@ def index_post():
     print('POST request received:')
     for k, v in request.form.items():
         print(f'{k} = {v}')
+    print(f'Form: {request.form}')
     return 'Request successful'
 
 
