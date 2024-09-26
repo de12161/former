@@ -25,8 +25,8 @@ class CustomForm(FlaskForm):
 
 
 class AddFormForm(FlaskForm):
-    form_name = StringField('Name', validators=[DataRequired()])
-    text_fields = TextAreaField('Fields',
+    form_name = StringField('Name', validators=[DataRequired(), Regexp(re.compile(r'^[a-z_]+[\w_]*(?!\s+)$', re.IGNORECASE))])
+    form_fields = TextAreaField('Fields',
                            validators=[
                                DataRequired(),
                                Regexp(re.compile(r'^(?!.*(\r?\n){2,}.*)[a-z_]+[\r\n\w_]*[\w_]+(?!.*(\r?\n))$', re.IGNORECASE | re.S))
