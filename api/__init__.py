@@ -38,8 +38,8 @@ def add_form():
     if form.validate_on_submit():
         form.fields.data = ''
         new_form = CustomForm()
-        fields = request.form['fields'].split('\n')
-        for label in fields:
+        labels = request.form['fields'].split('\n')
+        for label in labels:
             new_form.fields.append_entry().label = label
         form_list.append(new_form)
     return render_template('add_form.html', form=form)

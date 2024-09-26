@@ -15,7 +15,7 @@ class TestForm(FlaskForm):
 
 
 class VarEntryForm(FlaskForm):
-    value = StringField('Value', validators=[DataRequired()])
+    value = StringField('', validators=[DataRequired()])
 
 
 class CustomForm(FlaskForm):
