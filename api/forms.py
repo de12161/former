@@ -48,6 +48,6 @@ class AddFormForm(FlaskForm):
     form_fields = TextAreaField('Fields',
                            validators=[
                                DataRequired(),
-                               Regexp(re.compile(r'^(?!.*\s{2,}.*)(?!([\w_]+:\w+\r?\n)*([\w_]+):\w+\r?\n([\w_]+:\w+\r?\n)*\2:\w+(\s|$))([a-z_][\w_]*:(text|img|html)\r?\n)*[a-z_][\w_]*:(text|img|html)(?!\s+)$', re.IGNORECASE | re.S))
+                               Regexp(re.compile(r'^(?!.*(\r?\n){2,}.*)(?!([\w_]+:\w+\r?\n)*([\w_]+):\w+\r?\n([\w_]+:\w+\r?\n)*\2:\w+(\s|$))([a-z_][\w_]*:(text|img|html)\r?\n)*[a-z_][\w_]*:(text|img|html)(?!\s+)$', re.IGNORECASE | re.S))
                            ])
     submit = SubmitField('Add form')

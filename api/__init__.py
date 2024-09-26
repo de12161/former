@@ -35,7 +35,10 @@ def index_post():
 @app.route('/add-form', methods=['GET', 'POST'])
 def add_form():
     form = AddFormForm()
+    if form.is_submitted():
+        print(f'Request: {request.form}')
     if form.validate_on_submit():
+        print('Request validated')
         form.form_name.data = ''
         form.form_fields.data = ''
 
@@ -43,9 +46,9 @@ def add_form():
 
         labels = request.form['form_fields'].split('\n')
         for label in labels:
-            new_form.fields.append_entry()
-            new_form.fields[-1].label = label.strip()
-            new_form.fields[-1].value.name = label.strip()
+            new_form.text_fields.append_entry()
+            new_form.text_fields[-1].label = label.strip()
+            new_form.text_fields[-1].value.name = label.strip()
 
         form_list[request.form['form_name']] = new_form
     return render_template('add_form.html', form=form)
