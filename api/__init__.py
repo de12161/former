@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
 
-from .forms import TestForm, AddFormForm, CustomForm, VarEntryForm
+from .forms import TestForm, AddFormForm, CustomForm, StrVarEntryForm
 
 from secrets import token_urlsafe
 

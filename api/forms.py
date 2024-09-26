@@ -14,12 +14,12 @@ class TestForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-class VarEntryForm(FlaskForm):
+class StrVarEntryForm(FlaskForm):
     value = StringField('', validators=[DataRequired()])
 
 
 class CustomForm(FlaskForm):
-    fields = FieldList(FormField(VarEntryForm))
+    fields = FieldList(FormField(StrVarEntryForm))
     # doc_form = FileField('Template:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
