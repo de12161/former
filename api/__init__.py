@@ -36,11 +36,11 @@ def index_post():
 def add_form():
     form = AddFormForm()
     if form.validate_on_submit():
-        form.fields.data = ''
+        form.text_fields.data = ''
 
         new_form = CustomForm()
 
-        labels = request.form['fields'].split('\n')
+        labels = request.form['text_fields'].split('\n')
         for label in labels:
             new_form.fields.append_entry()
             new_form.fields[-1].label = label.strip()
