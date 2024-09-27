@@ -7,22 +7,15 @@ from wtforms.validators import DataRequired, Regexp
 
 
 class CustomFormFactory:
-    def __init__(self, field_types, form_kwargs=None):
-        if form_kwargs is None:
-            form_kwargs = {}
-        self.field_types = field_types
-        self.form_kwargs = form_kwargs
+    def __init__(self, **kwargs):
+        self.form_kwargs = kwargs
 
     def __call__(self, **kwargs):
         class CustomForm(FlaskForm):
             pass
 
-        index = 0
-        for field_name, field_kwargs in kwargs.items():
-            if 'id' not in field_kwargs.keys():
-                field_kwargs['id'] = f'{field_name}-{index}'
-                index += 1
-            setattr(CustomForm, field_name, self.field_types[field_kwargs['type']](**field_kwargs.get('kwargs')))
+        for field_name, field in kwargs.items():
+            setattr(CustomForm, field_name, field)
 
         if not hasattr(CustomForm, 'submit'):
             setattr(CustomForm, 'submit', SubmitField('Submit'))
