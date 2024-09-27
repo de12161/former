@@ -21,10 +21,10 @@ class CustomFormFactory:
 
 
 class AddFormFormFactory:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args):
         types = ''
 
-        for name in args or kwargs.keys():
+        for name in args:
             types += f'{name}|'
         types = types[:-1:]
 
