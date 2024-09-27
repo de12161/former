@@ -8,6 +8,8 @@ from wtforms.validators import DataRequired, Regexp
 
 class CustomFormFactory:
     def __init__(self, field_types, form_kwargs=None):
+        if form_kwargs is None:
+            form_kwargs = {}
         self.field_types = field_types
         self.form_kwargs = form_kwargs
 
@@ -17,6 +19,9 @@ class CustomFormFactory:
 
         for field_name, field_kwargs in kwargs.items():
             setattr(CustomForm, field_name, self.field_types[field_kwargs['type']](**field_kwargs.get('kwargs')))
+
+        if not hasattr(CustomForm, 'submit'):
+            setattr(CustomForm, 'submit', SubmitField('Submit'))
 
         return CustomForm(**self.form_kwargs)
 
