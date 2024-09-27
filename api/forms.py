@@ -1,10 +1,8 @@
 import re
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, FileField
-from wtforms.fields.form import FormField
-from wtforms.fields.list import FieldList
-from wtforms.fields.simple import TextAreaField, MultipleFileField
+from wtforms import StringField, SubmitField
+from wtforms.fields.simple import TextAreaField
 from wtforms.validators import DataRequired, Regexp
 
 
