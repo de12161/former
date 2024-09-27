@@ -10,12 +10,12 @@ class CustomFormFactory:
     def __init__(self, **kwargs):
         self.field_types = kwargs
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, **kwargs):
         class CustomForm(FlaskForm):
             pass
 
-        for name in args:
-            setattr(CustomForm, name, self.field_types[name](**kwargs))
+        for field_name, field_kwargs in kwargs.items():
+            setattr(CustomForm, field_name, self.field_types[field_name](**field_kwargs))
 
         return CustomForm()
 
@@ -24,8 +24,8 @@ class AddFormFormFactory:
     def __init__(self, *args):
         types = ''
 
-        for name in args:
-            types += f'{name}|'
+        for type_name in args:
+            types += f'{type_name}|'
         types = types[:-1:]
 
         self._types = types
