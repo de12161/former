@@ -7,17 +7,18 @@ from wtforms.validators import DataRequired, Regexp
 
 
 class CustomFormFactory:
-    def __init__(self, **kwargs):
-        self.field_types = kwargs
+    def __init__(self, field_types, form_kwargs=None):
+        self.field_types = field_types
+        self.form_kwargs = form_kwargs
 
     def __call__(self, **kwargs):
         class CustomForm(FlaskForm):
             pass
 
         for field_name, field_kwargs in kwargs.items():
-            setattr(CustomForm, field_name, self.field_types[field_kwargs.get('type')](**field_kwargs.get('kwargs')))
+            setattr(CustomForm, field_name, self.field_types[field_kwargs['type']](**field_kwargs.get('kwargs')))
 
-        return CustomForm()
+        return CustomForm(**self.form_kwargs)
 
 
 class AddFormFormFactory:
@@ -30,7 +31,7 @@ class AddFormFormFactory:
 
         self._types = types
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, **kwargs):
         class AddFormForm(FlaskForm):
             form_name = StringField('Name', validators=[DataRequired()])
             form_fields = TextAreaField(
@@ -47,4 +48,4 @@ class AddFormFormFactory:
             )
             submit = SubmitField('Add form')
 
-        return AddFormForm(*args, **kwargs)
+        return AddFormForm(**kwargs)
