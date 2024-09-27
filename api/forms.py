@@ -15,7 +15,7 @@ class CustomFormFactory:
             pass
 
         for field_name, field_kwargs in kwargs.items():
-            setattr(CustomForm, field_name, self.field_types[field_name](**field_kwargs))
+            setattr(CustomForm, field_name, self.field_types[field_kwargs.get('type')](**field_kwargs.get('kwargs')))
 
         return CustomForm()
 
