@@ -11,18 +11,22 @@
     {% for name, form in forms.items() %}
         <div style="border:1px solid black;">
             <p>{{ name }}</p>
-            {% for field in form.text_fields %}
-                {{ field.label }}
-                {{ field }}
-            {% endfor %}
-            {% for field in form.img_fields %}
-                {{ field.label }}
-                {{ field }}
-            {% endfor %}
-            {% for field in form.html_fields %}
-                {{ field.label }}
-                {{ field }}
-            {% endfor %}
+             <form method="POST">
+                {# form.hidden_field() #}
+                {% for field in form.text_fields %}
+                    {{ field.label }}
+                    {{ field() }}
+                {% endfor %}
+                {% for field in form.img_fields %}
+                    {{ field.label }}
+                    {{ field() }}
+                {% endfor %}
+                {% for field in form.html_fields %}
+                    {{ field.label }}
+                    {{ field() }}
+                {% endfor %}
+                {{ form.submit }}
+            </form>
         </div>
     {% endfor %}
 {% endblock %}

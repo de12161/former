@@ -44,11 +44,25 @@ def add_form():
 
         new_form = CustomForm()
 
-        labels = request.form['form_fields'].split('\n')
-        for label in labels:
-            new_form.text_fields.append_entry()
-            new_form.text_fields[-1].label = label.strip()
-            new_form.text_fields[-1].value.name = label.strip()
+        fields = {}
+        form_data = request.form['form_fields'].split('\n')
+        for field in form_data:
+            data = field.split(':')
+            fields[data[0].strip()] = data[1].strip()
+
+        for name, field_type in fields.items():
+            if field_type == 'text':
+                new_form.text_fields.append_entry()
+                new_form.text_fields[-1].label = name
+                new_form.text_fields[-1].value.name = name
+            elif field_type == 'img':
+                new_form.img_fields.append_entry()
+                new_form.img_fields[-1].label = name
+                new_form.img_fields[-1].value.name = name
+            elif field_type == 'html':
+                new_form.html_fields.append_entry()
+                new_form.html_fields[-1].label = name
+                new_form.html_fields[-1].value.name = name
 
         form_list[request.form['form_name']] = new_form
     return render_template('add_form.html', form=form)
