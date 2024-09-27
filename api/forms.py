@@ -8,32 +8,6 @@ from wtforms.fields.simple import TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired, Regexp
 
 
-class TestForm(FlaskForm):
-    text = StringField('Text', validators=[DataRequired()])
-    template = FileField('Template', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-
-
-class StrVarEntryForm(FlaskForm):
-    value = StringField('', validators=[DataRequired()])
-
-
-class ImgVarEntryForm(FlaskForm):
-    value = MultipleFileField('', validators=[DataRequired()])
-
-
-class HTMLVarEntryForm(FlaskForm):
-    value = TextAreaField('', validators=[DataRequired()])
-
-
-class CustomForm(FlaskForm):
-    text_fields = FieldList(FormField(StrVarEntryForm))
-    img_fields = FieldList(FormField(ImgVarEntryForm))
-    html_fields = FieldList(FormField(HTMLVarEntryForm))
-    # doc_form = FileField('Template:', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-
-
 """
     form_name and form_fields accept only valid variable names
     (no numbers at starting position, only characters allowed are a-z, 0-9 and '_')
@@ -43,11 +17,46 @@ class CustomForm(FlaskForm):
     var2:html
     var_img:img
 """
-class AddFormForm(FlaskForm):
-    form_name = StringField('Name', validators=[DataRequired(), Regexp(re.compile(r'^[a-z_]+[\w_]*(?!\s+)$', re.IGNORECASE))])
-    form_fields = TextAreaField('Fields',
-                           validators=[
-                               DataRequired(),
-                               Regexp(re.compile(r'^(?!.*(\r?\n){2,}.*)(?!([\w_]+:\w+\r?\n)*([\w_]+):\w+\r?\n([\w_]+:\w+\r?\n)*\2:\w+(\s|$))([a-z_][\w_]*:(text|img|html)\r?\n)*[a-z_][\w_]*:(text|img|html)(?!\s+)$', re.IGNORECASE | re.S))
-                           ])
-    submit = SubmitField('Add form')
+class FormCreator:
+    class __FieldTypes:
+        def __init__(self, **kwargs):
+            self.__field_types = kwargs
+            self.__type_str = ''
+            for name in kwargs.keys():
+                self.__type_str += f'{name}|'
+                self.__type_str = self.__type_str[:-1:]
+
+        def __getitem__(self, item):
+            return self.__field_types[item]
+
+        def type_str(self):
+            return self.__type_str
+
+
+    def __init__(self, **kwargs):
+        self.field_types = FormCreator.__FieldTypes(**kwargs)
+
+        class AddFormForm(FlaskForm):
+            form_name = StringField('Name', validators=[DataRequired(), Regexp(re.compile(r'^[a-z_]+[\w_]*(?!\s+)$', re.IGNORECASE))])
+            form_fields = TextAreaField(
+                              label='Fields',
+                              validators=[
+                                  DataRequired(),
+                                  Regexp(
+                                          re.compile(
+                                              r'^(?!.*(\r?\n){2,}.*)(?!([\w_]+:\w+\r?\n)*([\w_]+):\w+\r?\n([\w_]+:\w+\r?\n)*\2:\w+(\s|$))([a-z_][\w_]*:(' + self.field_types.type_str() + r')\r?\n)*[a-z_][\w_]*:(' + self.field_types.type_str() + r')(?!\s+)$',
+                                              re.IGNORECASE | re.S
+                                          )
+                                      )
+                              ]
+                          )
+            submit = SubmitField('Add form')
+
+    def create_form(self, *args):
+        class CustomForm(FlaskForm):
+            pass
+
+        for name in args:
+            setattr(CustomForm, name, self.field_types[name])
+
+        return CustomForm()
