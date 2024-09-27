@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
 
 {% block title %}Index{% endblock %}
 {% block nav %}
@@ -12,7 +11,18 @@
     {% for name, form in forms.items() %}
         <div style="border:1px solid black;">
             <p>{{ name }}</p>
-            {{ render_form(form) }}
+            {% for field in form.text_fields %}
+                {{ field.label }}
+                {{ field }}
+            {% endfor %}
+            {% for field in form.img_fields %}
+                {{ field.label }}
+                {{ field }}
+            {% endfor %}
+            {% for field in form.html_fields %}
+                {{ field.label }}
+                {{ field }}
+            {% endfor %}
         </div>
     {% endfor %}
 {% endblock %}
