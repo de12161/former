@@ -17,11 +17,11 @@ class CustomFormFactory:
         class CustomForm(FlaskForm):
             pass
 
-        field_id = 0
+        index = 0
         for field_name, field_kwargs in kwargs.items():
             if 'id' not in field_kwargs.keys():
-                field_kwargs['id'] = f'{field_name}-{field_id}'
-                field_id += 1
+                field_kwargs['id'] = f'{field_name}-{index}'
+                index += 1
             setattr(CustomForm, field_name, self.field_types[field_kwargs['type']](**field_kwargs.get('kwargs')))
 
         if not hasattr(CustomForm, 'submit'):
