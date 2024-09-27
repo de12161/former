@@ -42,7 +42,7 @@ class AddFormFormFactory:
                     DataRequired(),
                     Regexp(
                         re.compile(
-                            r'^(?!.*(\r?\n){2,}.*)(?!([\w_]+:\w+\r?\n)*([\w_]+):\w+\r?\n([\w_]+:\w+\r?\n)*\3:\w+(\s|$))([a-z_][\w_]*:(' + self._types + r')\r?\n)*[a-z_][\w_]*:(' + self._types + r')(?!\s+)$',
+                            r'^(?!.*(\r?\n){2,}.*)(?!(\w+:\w+\r?\n)*(\w+):\w+\r?\n(\w+:\w+\r?\n)*\3:\w+(\s|$))([a-z]\w*:(' + self._types + r')\r?\n)*[a-z]\w*:(' + self._types + r')(?!\s+)$',
                             re.IGNORECASE | re.S
                         )
                     )
