@@ -2,8 +2,10 @@ from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
+from wtforms.fields.simple import StringField, FileField, TextAreaField, SubmitField
+from wtforms.validators import DataRequired
 
-from .forms import TestForm, AddFormForm, CustomForm, StrVarEntryForm
+from .forms import CustomFormFactory, AddFormFormFactory
 
 from secrets import token_urlsafe
 
@@ -14,6 +16,9 @@ app.secret_key = key
 
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
+
+custom_factory = CustomFormFactory({'text': StringField, 'img': FileField, 'html': TextAreaField})
+add_form_factory = AddFormFormFactory(*custom_factory.field_types.keys())
 
 form_list = {}
 
@@ -34,7 +39,7 @@ def index_post():
 
 @app.route('/add-form', methods=['GET', 'POST'])
 def add_form():
-    form = AddFormForm()
+    form = add_form_factory()
     if form.is_submitted():
         print(f'Request: {request.form}')
     if form.validate_on_submit():
@@ -42,27 +47,17 @@ def add_form():
         form.form_name.data = ''
         form.form_fields.data = ''
 
-        new_form = CustomForm()
+        form_fields = {}
+        request_fields = request.form['form_fields'].split('\n')
+        for field in request_fields:
+            field_name, field_type  = tuple(map(str.strip, field.split(':')))
+            form_fields[field_name] = {'type': field_type, 'kwargs': {
+                'label': field_name,
+                'id': f'{field_name}-{str(len(form_list))}',
+                'validators': [DataRequired()]
+            }}
 
-        fields = {}
-        form_data = request.form['form_fields'].split('\n')
-        for field in form_data:
-            data = field.split(':')
-            fields[data[0].strip()] = data[1].strip()
-
-        for name, field_type in fields.items():
-            if field_type == 'text':
-                new_form.text_fields.append_entry()
-                new_form.text_fields[-1].label = name
-                new_form.text_fields[-1].value.name = name
-            elif field_type == 'img':
-                new_form.img_fields.append_entry()
-                new_form.img_fields[-1].label = name
-                new_form.img_fields[-1].value.name = name
-            elif field_type == 'html':
-                new_form.html_fields.append_entry()
-                new_form.html_fields[-1].label = name
-                new_form.html_fields[-1].value.name = name
+        new_form = custom_factory(**form_fields)
 
         form_list[request.form['form_name']] = new_form
     return render_template('add_form.html', form=form)
