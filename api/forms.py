@@ -52,6 +52,11 @@ class EditorFormFactory(FormFactoryBase):
         return EditorForm(**self._form_kwargs)
 
 
+class SaveFormForm(FlaskForm):
+    form_name = StringField('Form name', validators=[DataRequired()])
+    submit = SubmitField('Save form')
+
+
 class AddFormFormFactory:
     def __init__(self, *args):
         types = ''
