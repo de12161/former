@@ -8,7 +8,15 @@ from wtforms.validators import DataRequired, Regexp
 
 class CustomFormFactory:
     def __init__(self, **kwargs):
-        self.form_kwargs = kwargs
+        self._form_kwargs = kwargs
+
+    @property
+    def form_kwargs(self):
+        return self._form_kwargs
+
+    @form_kwargs.setter
+    def form_kwargs(self, kwargs):
+        self._form_kwargs = kwargs
 
     def __call__(self, **kwargs):
         class CustomForm(FlaskForm):
