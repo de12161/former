@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
 
 {% block title %}Forms{% endblock %}
 {% block nav %}
-    <a href="{{ url_for('index') }}">Index</a>
+    <a href="{{ url_for('index_get') }}">Index</a>
     <b>Add form</b>
 {% endblock %}
 
 {% block content %}
-<p>Form content</p>
+    <p>Form content</p>
+    {{ render_form(form) }}
 {% endblock %}
