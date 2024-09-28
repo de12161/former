@@ -55,7 +55,7 @@ class EditorFormFactory(FormFactoryBase):
 class SaveFormForm(FlaskForm):
     form_name = StringField('Form name', validators=[
         DataRequired(),
-        Regexp(re.compile(r'^[a-z_][\w ]*(?!\s+)$', re.IGNORECASE))
+        Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
     submit = SubmitField('Save form')
 
