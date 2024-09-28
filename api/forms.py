@@ -43,11 +43,11 @@ class EditorFormFactory(FormFactoryBase):
         class EditorForm(FlaskForm):
             field_name = StringField('Field name', validators=[
                 DataRequired(),
-                Regexp(re.compile(r'^[a-z]\w*(?!\s+)$', re.IGNORECASE))
+                Regexp(re.compile(r'^(?!validator)[a-z]\w*(?!\s+)$', re.IGNORECASE))
             ])
             field_type = SelectField('Field type', validators=[DataRequired()], choices=kwargs)
             add_field = SubmitField('Add field')
-            delete_field = SubmitField('Delete field')
+            remove_field = SubmitField('Remove field')
 
         return EditorForm(**self._form_kwargs)
 
