@@ -46,6 +46,7 @@ class EditorFormFactory(FormFactoryBase):
                 Regexp(re.compile(r'^[a-z]\w*(?!\s+)$', re.IGNORECASE))
             ])
             field_type = SelectField('Field type', validators=[DataRequired()], choices=kwargs)
+            submit = SubmitField('Submit')
 
         return EditorForm(**self._form_kwargs)
 
