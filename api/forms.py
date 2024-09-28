@@ -16,6 +16,8 @@ class CustomFormFactory:
 
     @form_kwargs.setter
     def form_kwargs(self, kwargs):
+        if kwargs is None:
+            kwargs = {}
         self._form_kwargs = kwargs
 
     def __call__(self, **kwargs):
