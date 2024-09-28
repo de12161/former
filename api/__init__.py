@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
-from wtforms.fields.simple import StringField, FileField, TextAreaField
+from wtforms.fields.simple import StringField, FileField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired
 
 from .forms import CustomFormFactory, AddFormFormFactory
@@ -62,6 +62,7 @@ def add_form():
                 id=f'{str(len(form_list))}-{field_name}',
                 validators=[DataRequired()]
             )
+            form_fields['submit'] = SubmitField('Submit')
 
         new_form = custom_factory(**form_fields)
 

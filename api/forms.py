@@ -17,9 +17,6 @@ class CustomFormFactory:
         for field_name, field in kwargs.items():
             setattr(CustomForm, field_name, field)
 
-        if not hasattr(CustomForm, 'submit'):
-            setattr(CustomForm, 'submit', SubmitField('Submit'))
-
         return CustomForm(**self.form_kwargs)
 
 
