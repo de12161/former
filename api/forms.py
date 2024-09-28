@@ -47,6 +47,7 @@ class EditorFormFactory(FormFactoryBase):
             ])
             field_type = SelectField('Field type', validators=[DataRequired()], choices=kwargs)
             add_field = SubmitField('Add field')
+            delete_field = SubmitField('Delete field')
 
         return EditorForm(**self._form_kwargs)
 
