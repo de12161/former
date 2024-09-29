@@ -58,33 +58,3 @@ class SaveFormForm(FlaskForm):
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
     submit = SubmitField('Save form')
-
-
-class AddFormFormFactory:
-    def __init__(self, *args):
-        types = ''
-
-        for type_name in args:
-            types += f'{type_name}|'
-        types = types[:-1:]
-
-        self._types = types
-
-    def __call__(self, **kwargs):
-        class AddFormForm(FlaskForm):
-            form_name = StringField('Name', validators=[DataRequired()])
-            form_fields = TextAreaField(
-                label='Fields',
-                validators=[
-                    DataRequired(),
-                    Regexp(
-                        re.compile(
-                            r'^(?!.*(\r?\n){2,}.*)(?!(\w+:\w+\r?\n)*(\w+):\w+\r?\n(\w+:\w+\r?\n)*\3:\w+(\s|$))([a-z]\w*:(' + self._types + r')\r?\n)*[a-z]\w*:(' + self._types + r')(?!\s+)$',
-                            re.IGNORECASE | re.S
-                        )
-                    )
-                ]
-            )
-            submit = SubmitField('Add form')
-
-        return AddFormForm(**kwargs)

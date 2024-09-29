@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form %}
+{% from 'bootstrap5/form.html' import render_form, render_field %}
 
 {% block title %}Forms{% endblock %}
 {% block nav %}
@@ -9,5 +9,7 @@
 
 {% block content %}
     <p>Form content</p>
-    {{ render_form(form) }}
+    {{ render_form(preview) }}
+    {{ render_form(editor) }}
+    {{ render_form(save) }}
 {% endblock %}
