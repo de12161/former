@@ -6,7 +6,10 @@ from wtforms.validators import DataRequired, Regexp
 import re
 
 
-def create_form(fields, **kwargs):
+def create_form(fields=None, **kwargs):
+    if fields is None:
+        fields = {}
+
     class CustomForm(FlaskForm): pass
 
     for field_name, field in fields.items():

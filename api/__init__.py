@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, url_for, redirect
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
-from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField
+from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
-from .forms import create_form_class, create_editor_class, SaveFormForm
+from .forms import create_form, create_editor, SaveFormForm
 from enum import IntEnum, auto
 
 from secrets import token_urlsafe
@@ -35,7 +35,7 @@ field_cls = {
 
 form_list = {}
 
-field_list = {
+choice_list = {
     'Pre-defined fields': [
         (FieldType.Bool.value, 'Checkbox'),
         (FieldType.Text.value, 'Text Field'),
@@ -45,6 +45,16 @@ field_list = {
 
     'Custom select fields': []
 }
+
+
+def to_fields(fields):
+    field_dict = {}
+
+    for field_name, field_type in fields.items():
+        field_class = field_cls[FieldType(int(field_type))]
+        field_dict[field_name] = field_class(field_name, validators=[DataRequired()])
+
+    return field_dict
 
 
 @app.get('/')
@@ -63,47 +73,52 @@ def index_post():
 
 @app.route('/add-form', methods=['GET', 'POST'])
 def add_form():
-    editor_class = create_editor_class(**field_list)
-    custom_class = create_form_class()
+    if 'custom_fields' in session:
+        custom_fields = session['custom_fields']
+    else:
+        custom_fields = {}
 
-    editor = editor_class()
+    editor = create_editor(choice_list)
     save_form = SaveFormForm()
-    custom_form = custom_class()
+    custom_form = create_form(to_fields(custom_fields))
 
     if request.method == 'GET':
         return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
 
 
-    if editor.is_submitted():
-        print(f'Request: {request.form}')
-
-
     if save_form.submit.data and save_form.validate():
-        print('Form saved (not really)')
+        print('Form saved (actually saved)')
         save_form.form_name.data = ''
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
+
+        custom_fields = to_fields(custom_fields)
+        custom_fields['submit'] = SubmitField('Submit')
+
+        form_name = request.form['form_name']
+        form_list[form_name] = create_form(custom_fields)
+
+        custom_fields = {}
+        session['custom_fields'] = custom_fields
+
+        return redirect(url_for('add_form'))
 
 
     if not editor.validate():
-        print('Editor form is not valid')
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
+        return redirect(url_for('add_form'))
 
     if editor.add_field.data:
-        print('Field added (not really)')
         editor.field_name.data = ''
 
         field_name = request.form['field_name']
-        field_type = field_cls[FieldType(int(request.form['field_type']))]
+        field_type = request.form['field_type']
 
-        field = {
-            field_name: field_type(field_name, validators=[DataRequired()])
-        }
-
-        custom_class = create_form_class(**field)
-        custom_form = custom_class()
+        custom_fields[field_name] = field_type
 
     if editor.remove_field.data:
-        print('Field removed (not really)')
         editor.field_name.data = ''
 
-    return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
+        field_name = request.form['field_name']
+        del custom_fields[field_name]
+
+    session['custom_fields'] = custom_fields
+
+    return redirect(url_for('add_form'))
