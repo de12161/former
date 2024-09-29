@@ -5,7 +5,7 @@ from flask_wtf import CSRFProtect
 from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired
 
-from .forms import CustomFormFactory, EditorFormFactory, SaveFormForm
+from .forms import create_form_class, create_editor_class, SaveFormForm
 from enum import IntEnum, auto
 
 from secrets import token_urlsafe
@@ -17,9 +17,6 @@ app.secret_key = key
 
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
-
-custom_factory = CustomFormFactory()
-editor_factory = EditorFormFactory()
 
 
 class FieldType(IntEnum):
@@ -66,27 +63,30 @@ def index_post():
 
 @app.route('/add-form', methods=['GET', 'POST'])
 def add_form():
-    editor = editor_factory(**field_list)
-    save = SaveFormForm()
-    custom_form = custom_factory()
+    editor_class = create_editor_class(**field_list)
+    custom_class = create_form_class()
+
+    editor = editor_class()
+    save_form = SaveFormForm()
+    custom_form = custom_class()
 
     if request.method == 'GET':
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
+        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
 
 
     if editor.is_submitted():
         print(f'Request: {request.form}')
 
 
-    if save.submit.data and save.validate():
+    if save_form.submit.data and save_form.validate():
         print('Form saved (not really)')
-        save.form_name.data = ''
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
+        save_form.form_name.data = ''
+        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
 
 
     if not editor.validate():
         print('Editor form is not valid')
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
+        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
 
     if editor.add_field.data:
         print('Field added (not really)')
@@ -99,10 +99,11 @@ def add_form():
             field_name: field_type(field_name, validators=[DataRequired()])
         }
 
-        custom_form = custom_factory(**field)
+        custom_class = create_form_class(**field)
+        custom_form = custom_class()
 
     if editor.remove_field.data:
         print('Field removed (not really)')
         editor.field_name.data = ''
 
-    return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
+    return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
