@@ -35,16 +35,48 @@ field_cls = {
 
 form_list = {}
 
-choice_list = {
-    'Pre-defined fields': [
-        (FieldType.Bool.value, 'Checkbox'),
-        (FieldType.Text.value, 'Text Field'),
-        (FieldType.TextArea.value, 'Text Area'),
-        (FieldType.File.value, 'File Field')
-    ],
+predefined_fields = [
+    (FieldType.Bool.value, 'Checkbox'),
+    (FieldType.Text.value, 'Text Field'),
+    (FieldType.TextArea.value, 'Text Area'),
+    (FieldType.File.value, 'File Field')
+]
 
-    'Custom select fields': []
-}
+
+def get_select_fields():
+    return []
+
+
+def get_editor_choices(predefined=None):
+    if predefined is None:
+        predefined = []
+
+    select_fields = get_select_fields()
+
+    choices = {}
+
+    if len(predefined) > 0:
+        choices['Pre-defined fields'] = predefined
+
+    if len(select_fields) > 0:
+        choices['Custom select fields'] = select_fields
+
+    return choices
+
+
+def save_form(form_name, form_fields):
+    form_list[form_name] = form_fields
+
+
+def get_forms():
+    ret = {}
+
+    for form_name, fields_text in form_list.items():
+        form_fields = to_fields(fields_text)
+        form_fields['submit'] = SubmitField('Submit')
+        ret[form_name] = create_form(form_fields)
+
+    return ret
 
 
 def to_fields(fields):
@@ -52,14 +84,15 @@ def to_fields(fields):
 
     for field_name, field_type in fields.items():
         field_class = field_cls[FieldType(int(field_type))]
-        field_dict[field_name] = field_class(field_name, validators=[DataRequired()])
+        vals = [] if field_class is BooleanField else [DataRequired()]
+        field_dict[field_name] = field_class(field_name, validators=vals)
 
     return field_dict
 
 
 @app.get('/')
 def index_get():
-    return render_template('index.html', forms=form_list)
+    return render_template('index.html', forms=get_forms())
 
 
 @app.post('/')
@@ -78,23 +111,18 @@ def add_form():
     else:
         custom_fields = {}
 
-    editor = create_editor(choice_list)
-    save_form = SaveFormForm()
+    editor = create_editor(get_editor_choices(predefined_fields))
+    save = SaveFormForm()
     custom_form = create_form(to_fields(custom_fields))
 
     if request.method == 'GET':
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save_form)
+        return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
 
 
-    if save_form.submit.data and save_form.validate():
-        print('Form saved (actually saved)')
-        save_form.form_name.data = ''
+    if save.submit.data and save.validate():
+        save.form_name.data = ''
 
-        custom_fields = to_fields(custom_fields)
-        custom_fields['submit'] = SubmitField('Submit')
-
-        form_name = request.form['form_name']
-        form_list[form_name] = create_form(custom_fields)
+        save_form(request.form['form_name'], custom_fields)
 
         custom_fields = {}
         session['custom_fields'] = custom_fields
