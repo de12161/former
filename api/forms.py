@@ -6,19 +6,16 @@ from wtforms.validators import DataRequired, Regexp
 import re
 
 
-def create_form(fields=None, **kwargs):
-    if fields is None:
-        fields = {}
-
+def create_form(fields, *args, **kwargs):
     class CustomForm(FlaskForm): pass
 
     for field_name, field in fields.items():
         setattr(CustomForm, field_name, field)
 
-    return CustomForm(**kwargs)
+    return CustomForm(*args, **kwargs)
 
 
-def create_editor(choices, **kwargs):
+def create_editor(choices, *args, **kwargs):
     class EditorForm(FlaskForm):
         field_name = StringField('Field name', validators=[
             DataRequired(),
@@ -28,7 +25,7 @@ def create_editor(choices, **kwargs):
         add_field = SubmitField('Add field')
         remove_field = SubmitField('Remove field')
 
-    return EditorForm(**kwargs)
+    return EditorForm(*args, **kwargs)
 
 
 class SaveFormForm(FlaskForm):
