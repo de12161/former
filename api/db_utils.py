@@ -1,92 +1,184 @@
 import sqlite3
-from functools import wraps
 
 
 class FormDB:
     def __init__(self, db):
-        self.__con = sqlite3.connect(db)
+        self._con = sqlite3.connect(db, autocommit=True)
 
-    def __del__(self):
-        self.__con.commit()
-        self.__con.close()
+    def _get_choices(self, select_label):
+        choices = []
 
-    def __create_cursor(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            cur = self.__con.cursor()
-            ret = func(self, cur, *args, **kwargs)
-            cur.close()
-            return ret
-        return wrapper
+        cur = self._con.cursor()
 
-    @__create_cursor
-    def get_forms(self, _cur):
-        forms = {}
+        rows = cur.execute(
+            '''
+            SELECT
+            name_choice
+            FROM
+            select_field JOIN choice ON select_field.id_select = choice.id_select
+            WHERE
+            label_select = ?
+            ''',
+            (select_label,)
+        ).fetchall()
 
-        rows = _cur.execute('''
-        SELECT
-        name_form, doc_form, name_field, type_field, label_field, name_choice
-        FROM
-        form LEFT JOIN field ON form.id_form = field.id_form LEFT JOIN choice ON field.id_field = choice.id_field
-        ''').fetchall()
+        cur.close()
 
         for row in rows:
-            form = row[0]
-            doc = row[1]
-            field = row[2]
-            field_type = row[3]
-            field_label = row[4]
-            choice = row[5]
+            choice = row[0]
 
-            if forms.get(form) is None:
-                forms[form] = {}
+            choices.append(choice)
 
-            forms[form]['doc_form'] = doc
+        return choices
 
-            if field is None:
-                continue
+    def _get_select_fields(self, form_label):
+        fields = {}
 
-            if forms[form].get('fields') is None:
-                forms[form]['fields'] = {}
+        cur = self._con.cursor()
 
-            if forms[form]['fields'].get(field) is None:
-                forms[form]['fields'][field] = {}
+        rows = cur.execute(
+            '''
+            SELECT
+            label_select
+            FROM
+            form
+            JOIN form_select ON form.id_form = form_select.id_form
+            JOIN select_field ON form_select.id_select = select_field.id_select
+            WHERE
+            label_form = ?
+            ''',
+            (form_label,)
+        ).fetchall()
 
-            forms[form]['fields'][field]['type'] = field_type
-            forms[form]['fields'][field]['label'] = field_label
+        cur.close()
 
-            if choice is None:
-                continue
+        for row in rows:
+            select_label = row[0]
+            choices = self._get_choices(select_label)
 
-            if forms[form]['fields'][field].get('choices') is None:
-                forms[form]['fields'][field]['choices'] = []
+            fields[select_label] = choices
 
-            forms[form]['fields'][field]['choices'].append(choice)
+        return fields
+
+    def _get_static_fields(self, form_label):
+        fields = {}
+
+        cur = self._con.cursor()
+
+        rows = cur.execute(
+            '''
+            SELECT
+            name_field, type_field, label_field
+            FROM
+            form JOIN field ON form.id_form = field.id_form WHERE label_form = ?
+            ''',
+            (form_label,)
+        ).fetchall()
+
+        cur.close()
+
+        for row in rows:
+            field_name = row[0]
+            field_type = row[1]
+            field_label = row[2]
+
+            fields[field_name] = {
+                'type': field_type,
+                'label': field_label
+            }
+
+        return fields
+
+    def _get_doc_form(self, form_label):
+        cur = self._con.cursor()
+
+        doc = cur.execute('SELECT doc_form FROM form WHERE label_form = ?', (form_label,)).fetchone()[0]
+
+        cur.close()
+
+        return doc
+
+    def get_forms(self):
+        forms = {}
+
+        cur = self._con.cursor()
+
+        rows = cur.execute('SELECT label_form FROM form').fetchall()
+
+        cur.close()
+
+        for row in rows:
+            form_label = row[0]
+
+            forms[form_label] = {
+                'static_fields': self._get_static_fields(form_label),
+                'select_fields': self._get_select_fields(form_label),
+                'doc_form': self._get_doc_form(form_label)
+            }
 
         return forms
 
-    @__create_cursor
-    def save_form(self, _cur, form_name, fields, doc_form):
-        _cur.execute('INSERT INTO form(name_form, doc_form) VALUES (?, ?)', (form_name, doc_form))
+    def save_select_field(self, select_label, choices):
+        cur = self._con.cursor()
 
-        if len(fields.items()) == 0:
-            return
+        cur.execute(
+            'INSERT INTO select_field(label_select) VALUES (?)',
+            (select_label,)
+        )
 
-        form_id = _cur.execute('SELECT id_form FROM form WHERE name_form=?', (form_name,)).fetchone()[0]
+        select_id = cur.execute(
+            'SELECT id_select FROM select_field WHERE label_select = ?',
+            (select_label,)
+        ).fetchone()[0]
 
-        for field_name, field_data in fields.items():
-            _cur.execute(
-                'INSERT INTO field(id_form, name_field, type_field, label_field) VALUES (?, ?, ?, ?)',
-                (form_id, field_name, field_data['type'], field_data['label'])
-            )
+        choice_data = list(map(lambda choice: (select_id, choice), choices))
+        cur.executemany('INSERT INTO choice(id_select, name_choice) VALUES (?, ?)', choice_data)
 
-            if field_data.get('choices') is None:
-                continue
+        cur.close()
 
-            field_id = _cur.execute('SELECT id_field FROM field WHERE name_field=?', (field_name,)).fetchone()[0]
+    def _save_static_field(self, form_label, field_name, field_type, field_label):
+        cur = self._con.cursor()
 
-            for choice in field_data['choices']:
-                _cur.execute('INSERT INTO choice(id_field, name_choice) VALUES (?, ?)', (field_id, choice))
+        form_id = cur.execute('SELECT id_form FROM form WHERE label_form=?', (form_label,)).fetchone()[0]
+
+        cur.execute(
+            'INSERT INTO field(id_form, name_field, type_field, label_field) VALUES (?, ?, ?, ?)',
+            (form_id, field_name, field_type, field_label)
+        )
+
+        cur.close()
+
+    def _link_form_select(self, form_label, select_label):
+        cur = self._con.cursor()
+
+        form_id = cur.execute(
+            'SELECT id_form FROM form WHERE label_form = ?',
+            (form_label,)
+        ).fetchone()[0]
+
+        select_id = cur.execute(
+            'SELECT id_select FROM select_field WHERE label_select = ?',
+            (select_label,)
+        ).fetchone()[0]
+
+        cur.execute('INSERT INTO form_select(id_form, id_select) VALUES (?, ?)', (form_id, select_id))
+
+        cur.close()
+
+    def save_form(self, form_label, doc_form, fields):
+        cur = self._con.cursor()
+
+        cur.execute('INSERT INTO form(label_form, doc_form) VALUES (?, ?)', (form_label, doc_form))
+
+        if 'static_fields' in fields:
+            for field_name, field_data in fields['static_fields'].items():
+                self._save_static_field(form_label, field_name, field_data['type'], field_data['label'])
+
+        if 'select_fields' in fields:
+            for select_label in fields['select_fields']:
+                self._link_form_select(form_label, select_label)
+
+        cur.close()
 
 
 def init_db(db):
@@ -94,21 +186,29 @@ def init_db(db):
         cur = con.cursor()
 
         cur.execute('DROP TABLE IF EXISTS form')
+        cur.execute('DROP TABLE IF EXISTS select_field')
         cur.execute('DROP TABLE IF EXISTS field')
         cur.execute('DROP TABLE IF EXISTS choice')
+        cur.execute('DROP TABLE IF EXISTS form_select')
 
         cur.execute('''
         CREATE TABLE IF NOT EXISTS form (
         id_form INTEGER PRIMARY KEY AUTOINCREMENT,
-        name_form TEXT UNIQUE NOT NULL,
+        label_form TEXT UNIQUE NOT NULL,
         doc_form BLOB NOT NULL
+        )
+        ''')
+        cur.execute('''
+        CREATE TABLE IF NOT EXISTS select_field (
+        id_select INTEGER PRIMARY KEY AUTOINCREMENT,
+        label_select TEXT UNIQUE NOT NULL
         )
         ''')
         cur.execute('''
         CREATE TABLE IF NOT EXISTS field (
         id_field INTEGER PRIMARY KEY AUTOINCREMENT,
         id_form INTEGER REFERENCES form(id_form) ON DELETE CASCADE NOT NULL,
-        name_field TEXT UNIQUE NOT NULL,
+        name_field TEXT NOT NULL,
         type_field INTEGER NOT NULL,
         label_field TEXT NOT NULL
         )
@@ -116,8 +216,15 @@ def init_db(db):
         cur.execute('''
         CREATE TABLE IF NOT EXISTS choice (
         id_choice INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_field INTEGER REFERENCES field(id_field) ON DELETE CASCADE NOT NULL,
+        id_select INTEGER REFERENCES select_field(id_select) ON DELETE CASCADE NOT NULL,
         name_choice TEXT NOT NULL
+        )
+        ''')
+        cur.execute('''
+        CREATE TABLE IF NOT EXISTS form_select (
+        id_fs INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_form INTEGER REFERENCES form(id_form) ON DELETE CASCADE NOT NULL,
+        id_select INTEGER REFERENCES select_field(id_select) ON DELETE RESTRICT NOT NULL
         )
         ''')
 
