@@ -97,10 +97,10 @@ def add_form():
 
     editor = create_editor(get_editor_choices(predefined_fields, db.get_select_labels()))
     save = SaveFormForm()
-    custom_form = create_form(to_fields(custom_fields, field_class))
+    preview = create_form(to_fields(custom_fields, field_class))
 
     if request.method == 'GET':
-        return render_template('add_form.html', preview=custom_form, editor=editor, save=save)
+        return render_template('add_form.html', preview=preview, editor=editor, save=save)
 
 
     if save.submit.data and save.validate():

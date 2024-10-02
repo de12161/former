@@ -9,7 +9,16 @@
 {% endblock %}
 
 {% block content %}
-{{ render_form(preview) }}
+{%- for field in preview %}
+    {%- if field.name != "csrf_token" %}
+        {% if field.type == "BooleanField" %}
+        {{ field.name }} {{ field }} {{ field.label }}
+        {% else %}
+        {{ field.name }} {{ field.label }} {{ field }}
+        {% endif %}
+        <br>
+    {% endif %}
+{% endfor %}
 {{ render_form(editor) }}
 {{ render_form(save) }}
 {% endblock %}
