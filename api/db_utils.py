@@ -5,7 +5,7 @@ class FormDB:
     def __init__(self, db):
         self._con = sqlite3.connect(db, autocommit=True)
 
-    def _get_choices(self, select_label):
+    def get_choices(self, select_label):
         choices = []
 
         cur = self._con.cursor()
@@ -39,7 +39,7 @@ class FormDB:
         rows = cur.execute(
             '''
             SELECT
-            label_select
+            name_select, label_select
             FROM
             form
             JOIN form_select ON form.id_form = form_select.id_form
@@ -53,10 +53,14 @@ class FormDB:
         cur.close()
 
         for row in rows:
-            select_label = row[0]
-            choices = self._get_choices(select_label)
+            select_name = str(row[0])
+            select_label = row[1]
+            choices = self.get_choices(select_label)
 
-            fields[select_label] = choices
+            fields[select_name] = {
+                'choices': choices,
+                'label': select_label
+            }
 
         return fields
 
@@ -98,7 +102,7 @@ class FormDB:
 
         return doc
 
-    def get_select_names(self):
+    def get_select_labels(self):
         cur = self._con.cursor()
 
         rows = cur.execute('SELECT label_select FROM select_field').fetchall()
@@ -159,7 +163,7 @@ class FormDB:
 
         cur.close()
 
-    def _link_form_select(self, form_label, select_label):
+    def _link_form_select(self, form_label, select_label, select_name):
         cur = self._con.cursor()
 
         form_id = cur.execute(
@@ -172,22 +176,25 @@ class FormDB:
             (select_label,)
         ).fetchone()[0]
 
-        cur.execute('INSERT INTO form_select(id_form, id_select) VALUES (?, ?)', (form_id, select_id))
+        cur.execute(
+            'INSERT INTO form_select(id_form, id_select, name_select) VALUES (?, ?, ?)',
+            (form_id, select_id, select_name)
+        )
 
         cur.close()
 
-    def save_form(self, form_label, doc_form, fields):
+    def save_form(self, form_label, fields):
         cur = self._con.cursor()
 
-        cur.execute('INSERT INTO form(label_form, doc_form) VALUES (?, ?)', (form_label, doc_form))
+        cur.execute('INSERT INTO form(label_form, doc_form) VALUES (?, ?)', (form_label, fields['doc_form']))
 
         if 'static_fields' in fields:
             for field_name, field_data in fields['static_fields'].items():
                 self._save_static_field(form_label, field_name, field_data['type'], field_data['label'])
 
         if 'select_fields' in fields:
-            for select_label in fields['select_fields']:
-                self._link_form_select(form_label, select_label)
+            for field_name, field_data in fields['select_fields'].items():
+                self._link_form_select(form_label, field_data['label'], field_name)
 
         cur.close()
 
@@ -235,13 +242,14 @@ def init_db(db):
         CREATE TABLE IF NOT EXISTS form_select (
         id_fs INTEGER PRIMARY KEY AUTOINCREMENT,
         id_form INTEGER REFERENCES form(id_form) ON DELETE CASCADE NOT NULL,
-        id_select INTEGER REFERENCES select_field(id_select) ON DELETE RESTRICT NOT NULL
+        id_select INTEGER REFERENCES select_field(id_select) ON DELETE RESTRICT NOT NULL,
+        name_select TEXT NOT NULL
         )
         ''')
 
 
 def main():
-    db = input('Choose a location for the database: ')
+    db = input('Choose a name for the database: ')
 
     print(f'Initializing {db}...')
     init_db(db)
