@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
@@ -7,7 +7,7 @@ from wtforms.fields.simple import StringField, FileField, TextAreaField, Boolean
 from wtforms.validators import DataRequired
 
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
-from .utils import get_editor_choices, to_fields
+from .utils import get_editor_choices, to_fields, flash_errors
 from .db_utils import FormDB
 
 from enum import IntEnum, auto
@@ -95,9 +95,7 @@ def add_form():
 
     db = FormDB(db_name)
 
-    select_fields = db.get_select_labels()
-
-    editor = create_editor(get_editor_choices(predefined_fields, select_fields))
+    editor = create_editor(get_editor_choices(predefined_fields, db.get_select_labels()))
     save = SaveFormForm()
     custom_form = create_form(to_fields(custom_fields, field_class))
 
@@ -117,8 +115,10 @@ def add_form():
 
         return redirect(url_for('add_form'))
 
+    flash_errors(save)
 
     if not editor.validate():
+        flash_errors(editor)
         return redirect(url_for('add_form'))
 
     if editor.add_field.data:
@@ -185,8 +185,10 @@ def add_field():
 
         return redirect(url_for('add_field'))
 
+    flash_errors(save)
 
     if not editor.validate():
+        flash_errors(editor)
         return redirect(url_for('add_field'))
 
     if editor.add_choice.data:

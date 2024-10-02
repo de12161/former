@@ -1,3 +1,12 @@
+from flask import flash
+
+
+def flash_errors(form):
+    if form.errors:
+        for error in form.errors.values():
+            flash(error)
+
+
 def get_editor_choices(predefined, select):
     select_names = select
 
