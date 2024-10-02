@@ -22,7 +22,7 @@ def create_editor(choices, *args, **kwargs):
             Regexp(re.compile(r'^(?!validator)[a-z]\w*(?!\s+)$', re.IGNORECASE))
         ])
         field_label = StringField('Field label', validators=[DataRequired()])
-        field_type = SelectField('Field type', validators=[DataRequired()], choices=choices)
+        field_type = SelectField('Field type', validators=[DataRequired()], choices=choices, validate_choice=False)
         add_field = SubmitField('Add field')
         remove_field = SubmitField('Remove field')
 
