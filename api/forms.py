@@ -33,9 +33,9 @@ class SaveFormForm(FlaskForm):
         DataRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
-    doc_form = StringField('Template', validators=[DataRequired()])
+    doc_form = StringField('Template')
     save_form = SubmitField('Save form')
-    update_form = SubmitField('Update form')
+    delete_form = SubmitField('Delete form')
 
 
 class SelectFieldEditor(FlaskForm):
@@ -47,4 +47,4 @@ class SelectFieldEditor(FlaskForm):
 class SaveSelectField(FlaskForm):
     field_label = StringField('Field label', validators=[DataRequired(), Length(min=5)])
     save_field = SubmitField('Save field')
-    update_field = SubmitField('Update field')
+    delete_field = SubmitField('Delete field')

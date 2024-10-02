@@ -104,9 +104,16 @@ def add_form():
     if request.method == 'GET':
         return render_template('add_form.html', preview=preview, editor=editor, save=save)
 
+    if save.delete_form.data and save.validate():
+        db.delete_form(request.form['form_name'])
+        return redirect(url_for('add_form'))
 
     if save.save_form.data and save.validate():
         custom_fields['doc_form'] = request.form['doc_form']
+
+        if len(custom_fields['doc_form']) == 0:
+            flash('Invalid template')
+            return redirect(url_for('add_form'))
 
         try:
             db.save_form(request.form['form_name'], custom_fields)
@@ -192,6 +199,9 @@ def add_field():
     if request.method == 'GET':
         return render_template('add_field.html', preview=preview, editor=editor, save=save)
 
+    if save.delete_field.data and save.validate():
+        db.delete_select_field(request.form['field_label'])
+        return redirect(url_for('add_field'))
 
     if save.save_field.data and save.validate():
         try:
