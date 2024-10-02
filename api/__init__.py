@@ -1,3 +1,5 @@
+from sqlite3 import IntegrityError
+
 from flask import Flask, render_template, request, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap5
 
@@ -103,15 +105,17 @@ def add_form():
         return render_template('add_form.html', preview=preview, editor=editor, save=save)
 
 
-    if save.submit.data and save.validate():
-        save.form_name.data = ''
-
+    if save.save_form.data and save.validate():
         custom_fields['doc_form'] = request.form['doc_form']
 
-        db.save_form(request.form['form_name'], custom_fields)
+        try:
+            db.save_form(request.form['form_name'], custom_fields)
 
-        custom_fields = {'static_fields': {}, 'select_fields': {}}
-        session['custom_fields'] = custom_fields
+            custom_fields = {'static_fields': {}, 'select_fields': {}}
+            session['custom_fields'] = custom_fields
+            save.form_name.data = ''
+        except IntegrityError:
+            flash(f'Form {save.form_name.data} already exists')
 
         return redirect(url_for('add_form'))
 
@@ -189,13 +193,15 @@ def add_field():
         return render_template('add_field.html', preview=preview, editor=editor, save=save)
 
 
-    if save.submit.data and save.validate():
-        save.field_label.data = ''
+    if save.save_field.data and save.validate():
+        try:
+            db.save_select_field(request.form['field_label'], choices)
 
-        db.save_select_field(request.form['field_label'], choices)
-
-        choices = []
-        session['choices'] = choices
+            choices = []
+            session['choices'] = choices
+            save.field_label.data = ''
+        except IntegrityError:
+            flash(f'Field {save.field_label.data} already exists')
 
         return redirect(url_for('add_field'))
 
