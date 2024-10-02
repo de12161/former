@@ -200,7 +200,10 @@ def add_field():
         return render_template('add_field.html', preview=preview, editor=editor, save=save)
 
     if save.delete_field.data and save.validate():
-        db.delete_select_field(request.form['field_label'])
+        try:
+            db.delete_select_field(request.form['field_label'])
+        except IntegrityError:
+            flash('Cannot delete field as it is used by at least one form')
         return redirect(url_for('add_field'))
 
     if save.save_field.data and save.validate():

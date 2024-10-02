@@ -5,6 +5,10 @@ class FormDB:
     def __init__(self, db):
         self._con = sqlite3.connect(db, autocommit=True)
 
+        cur = self._con.cursor()
+        cur.execute('PRAGMA foreign_keys = ON')
+        cur.close()
+
     def get_choices(self, select_label):
         choices = []
 
