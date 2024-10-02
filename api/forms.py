@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
-from wtforms.validators import DataRequired, Regexp
+from wtforms.validators import DataRequired, Regexp, Length
 
 import re
 
@@ -45,5 +45,5 @@ class SelectFieldEditor(FlaskForm):
 
 
 class SaveSelectField(FlaskForm):
-    field_label = StringField('Field label', validators=[DataRequired()])
+    field_label = StringField('Field label', validators=[DataRequired(), Length(min=5)])
     submit = SubmitField('Save field')
