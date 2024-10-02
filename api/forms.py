@@ -34,7 +34,7 @@ class SaveFormForm(FlaskForm):
         DataRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
-    doc_form = StringField('doc', validators=[DataRequired()])
+    doc_form = StringField('Template', validators=[DataRequired()])
     submit = SubmitField('Save form')
 
 
