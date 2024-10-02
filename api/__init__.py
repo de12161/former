@@ -131,6 +131,8 @@ def add_form():
                 flash('Invalid name or label')
                 return redirect(url_for('add_form'))
 
+            if field_name in custom_fields['select_fields']:
+                del custom_fields['select_fields'][field_name]
 
             custom_fields['static_fields'][field_name] = {
                 'type': field_type,
@@ -143,6 +145,9 @@ def add_form():
             if len(field_name) == 0:
                 flash('Invalid name')
                 return redirect(url_for('add_form'))
+
+            if field_name in custom_fields['static_fields']:
+                del custom_fields['static_fields'][field_name]
 
             custom_fields['select_fields'][field_name] = {
                 'choices': db.get_choices(field_label),
