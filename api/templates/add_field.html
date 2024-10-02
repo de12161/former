@@ -4,12 +4,12 @@
 {% block title %}Forms{% endblock %}
 {% block nav %}
 <a href="{{ url_for('index_get') }}">Index</a>
-<b>Form editor</b>
-<a href="{{ url_for('add_field') }}">Field editor</a>
+<a href="{{ url_for('add_form') }}">Form editor</a>
+<b>Field editor</b>
 {% endblock %}
 
 {% block content %}
-<p>Form content</p>
+<p>Field content</p>
 {{ render_form(preview) }}
 {{ render_form(editor) }}
 {{ render_form(save) }}

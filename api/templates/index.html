@@ -3,16 +3,17 @@
 
 {% block title %}Index{% endblock %}
 {% block nav %}
-    <b>Index</b>
-    <a href="{{ url_for('add_form') }}">Add form</a>
+<b>Index</b>
+<a href="{{ url_for('add_form') }}">Form editor</a>
+<a href="{{ url_for('add_field') }}">Field editor</a>
 {% endblock %}
 
 {% block content %}
-    <p>Content</p>
-    {% for name, form in forms.items() %}
-        <div style="border:1px solid black;">
-            <p>{{ name }}</p>
-            {{ render_form(form) }}
-        </div>
-    {% endfor %}
+<p>Content</p>
+{%- for name, form in forms.items() %}
+    <div style="border:1px solid black;">
+        <p>{{ name }}</p>
+        {{ render_form(form) }}
+    </div>
+{% endfor %}
 {% endblock %}

@@ -30,8 +30,19 @@ def create_editor(choices, *args, **kwargs):
 
 
 class SaveFormForm(FlaskForm):
-    form_name = StringField('Form name', validators=[
+    form_name = StringField('Form label', validators=[
         DataRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
     submit = SubmitField('Save form')
+
+
+class SelectFieldEditor(FlaskForm):
+    choice_name = StringField('Choice name', validators=[DataRequired()])
+    add_choice = SubmitField('Add choice')
+    remove_choice = SubmitField('Remove choice')
+
+
+class SaveSelectField(FlaskForm):
+    field_label = StringField('Field label', validators=[DataRequired()])
+    submit = SubmitField('Save field')

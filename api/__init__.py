@@ -2,10 +2,11 @@ from flask import Flask, render_template, request, session, url_for, redirect
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
+from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
-from .forms import create_form, create_editor, SaveFormForm
+from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
 from enum import IntEnum, auto
 
 from secrets import token_urlsafe
@@ -150,3 +151,56 @@ def add_form():
     session['custom_fields'] = custom_fields
 
     return redirect(url_for('add_form'))
+
+
+@app.route('/add_field', methods=['GET', 'POST'])
+def add_field():
+    if 'choices' in session:
+        choices = session['choices']
+    else:
+        choices = []
+
+    print(f'Request: {request.form}')
+    print(f'Choices: {choices}')
+
+    preview = create_form({'select': SelectField('', choices=choices)})
+    editor = SelectFieldEditor()
+    save = SaveSelectField()
+
+    if request.method == 'GET':
+        return render_template('add_field.html', preview=preview, editor=editor, save=save)
+
+
+    if save.submit.data and save.validate():
+        save.field_label.data = ''
+
+        # save_form(request.form['form_name'], custom_fields)
+
+        # custom_fields = {}
+        # session['custom_fields'] = custom_fields
+
+        return redirect(url_for('add_field'))
+
+
+    if not editor.validate():
+        return redirect(url_for('add_field'))
+
+    if editor.add_choice.data:
+        editor.choice_name.data = ''
+
+        choice_name = request.form['choice_name']
+
+        if choice_name not in choices:
+            choices.append(choice_name)
+
+    if editor.remove_choice.data:
+        editor.choice_name.data = ''
+
+        choice_name = request.form['choice_name']
+
+        if choice_name in choices:
+            del choices[choices.index(choice_name)]
+
+    session['choices'] = choices
+
+    return redirect(url_for('add_field'))
