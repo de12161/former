@@ -133,6 +133,16 @@ class FormDB:
 
         return forms
 
+    def delete_select_field(self, select_label):
+        cur = self._con.cursor()
+
+        cur.execute(
+            'DELETE FROM select_field WHERE label_select=?',
+            (select_label,)
+        )
+
+        cur.close()
+
     def save_select_field(self, select_label, choices):
         cur = self._con.cursor()
 
@@ -179,6 +189,16 @@ class FormDB:
         cur.execute(
             'INSERT INTO form_select(id_form, id_select, name_select) VALUES (?, ?, ?)',
             (form_id, select_id, select_name)
+        )
+
+        cur.close()
+
+    def delete_form(self, form_label):
+        cur = self._con.cursor()
+
+        cur.execute(
+            'DELETE FROM form WHERE label_form=?',
+            (form_label,)
         )
 
         cur.close()
