@@ -98,6 +98,17 @@ class FormDB:
 
         return doc
 
+    def get_select_names(self):
+        cur = self._con.cursor()
+
+        rows = cur.execute('SELECT label_select FROM select_field').fetchall()
+
+        cur.close()
+
+        fields = list(map(lambda name: name[0], rows))
+
+        return fields
+
     def get_forms(self):
         forms = {}
 
