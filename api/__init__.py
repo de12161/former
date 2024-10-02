@@ -124,7 +124,7 @@ def add_form():
     if editor.add_field.data:
         editor.field_name.data = ''
 
-        if len(request.form['field_type']) > 1:
+        if len(request.form['field_type']) < 5:
             field_name = request.form['field_name']
             field_type = request.form['field_type']
             field_label = request.form['field_label']
