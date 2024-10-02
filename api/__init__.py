@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, url_for, redirect
+from flask import Flask, render_template, request, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
@@ -122,12 +122,15 @@ def add_form():
         return redirect(url_for('add_form'))
 
     if editor.add_field.data:
-        editor.field_name.data = ''
-
         if len(request.form['field_type']) < 5:
             field_name = request.form['field_name']
             field_type = request.form['field_type']
             field_label = request.form['field_label']
+
+            if len(field_name) == 0 or len(field_label) == 0:
+                flash('Invalid name or label')
+                return redirect(url_for('add_form'))
+
 
             custom_fields['static_fields'][field_name] = {
                 'type': field_type,
@@ -137,14 +140,18 @@ def add_form():
             field_name = request.form['field_name']
             field_label = request.form['field_type']
 
+            if len(field_name) == 0:
+                flash('Invalid name')
+                return redirect(url_for('add_form'))
+
             custom_fields['select_fields'][field_name] = {
                 'choices': db.get_choices(field_label),
                 'label': field_label
             }
 
-    if editor.remove_field.data:
         editor.field_name.data = ''
 
+    if editor.remove_field.data:
         field_name = request.form['field_name']
 
         if field_name in custom_fields['static_fields']:
@@ -152,6 +159,8 @@ def add_form():
 
         if field_name in custom_fields['select_fields']:
             del custom_fields['select_fields'][field_name]
+
+        editor.field_name.data = ''
 
     session['custom_fields'] = custom_fields
 
