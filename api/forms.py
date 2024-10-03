@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
 from wtforms.validators import InputRequired, Regexp, Length
@@ -29,11 +30,11 @@ def create_editor(choices, *args, **kwargs):
 
 
 class SaveFormForm(FlaskForm):
-    form_name = StringField('Form label', validators=[
+    form_label = StringField('Form label', validators=[
         InputRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
-    doc_form = StringField('Template')
+    doc_form = FileField('Template')
     save_form = SubmitField('Save form')
     delete_form = SubmitField('Delete form')
 

@@ -9,7 +9,7 @@ from wtforms.fields.simple import StringField, FileField, TextAreaField, Boolean
 from wtforms.validators import InputRequired
 
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
-from .utils import get_editor_choices, to_fields, flash_errors
+from .utils import get_editor_choices, generate_fields, flash_errors, send_template, get_config_data, health_check
 from .db_utils import FormDB
 
 from enum import IntEnum, auto
@@ -25,6 +25,7 @@ bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
 db_name = 'forms.db'
+config = get_config_data('config.txt')
 
 
 class FieldType(IntEnum):
@@ -71,9 +72,9 @@ def index():
 
     form = {}
     for form_label, field_data in db.get_forms().items():
-        fields = to_fields(field_data, field_class)
+        fields = generate_fields(field_data, field_class)
         fields['submit'] = SubmitField('Submit')
-        fields['doc_form'] = HiddenField(default=field_data['doc_form'])
+        fields['form_label'] = HiddenField(default=form_label)
         form[form_label] = create_form(fields)
 
     return render_template('index.html', forms=form)
@@ -81,11 +82,31 @@ def index():
 
 @app.post('/')
 def index_post():
-    print('POST request received:')
-    for k, v in request.form.items():
-        print(f'{k} = {v}')
-    print(f'Form: {request.form}')
-    return 'Request successful'
+    db = FormDB(db_name)
+
+    doc_form = db.get_doc_form(request.form['form_label'])
+
+    data = dict(request.form)
+    del data['form_label']
+    del data['csrf_token']
+    del data['submit']
+
+    print('Connecting to API...')
+
+    connection = health_check(config['url'])
+
+    if not connection:
+        print('Couldn\'t connect to API')
+        flash('Couldn\'t connect to API')
+        return redirect(url_for('index'))
+
+    print(f'Sending request...')
+
+    response = send_template(config['url'], doc_form, data)
+
+    print(f'Response text: {response.text}')
+
+    return 'Request sent'
 
 
 @app.route('/add-form', methods=['GET', 'POST'])
@@ -99,30 +120,30 @@ def add_form():
 
     editor = create_editor(get_editor_choices(predefined_fields, db.get_select_labels()))
     save = SaveFormForm()
-    preview = create_form(to_fields(custom_fields, field_class))
+    preview = create_form(generate_fields(custom_fields, field_class))
 
     if request.method == 'GET':
         return render_template('add_form.html', preview=preview, editor=editor, save=save)
 
     if save.delete_form.data and save.validate():
-        db.delete_form(request.form['form_name'])
+        db.delete_form(request.form['form_label'])
         return redirect(url_for('add_form'))
 
     if save.save_form.data and save.validate():
-        custom_fields['doc_form'] = request.form['doc_form']
+        file = request.files['doc_form']
 
-        if len(custom_fields['doc_form']) == 0:
-            flash('Invalid template')
-            return redirect(url_for('add_form'))
+        custom_fields['doc_form'] = file.read()
+
+        file.close()
 
         try:
-            db.save_form(request.form['form_name'], custom_fields)
+            db.save_form(request.form['form_label'], custom_fields)
 
             custom_fields = {'static_fields': {}, 'select_fields': {}}
             session['custom_fields'] = custom_fields
-            save.form_name.data = ''
+            save.form_label.data = ''
         except IntegrityError:
-            flash(f'Form {save.form_name.data} already exists')
+            flash(f'Form {save.form_label.data} already exists')
 
         return redirect(url_for('add_form'))
 

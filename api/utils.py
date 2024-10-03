@@ -1,3 +1,4 @@
+import requests
 from flask import flash
 
 
@@ -21,7 +22,7 @@ def get_editor_choices(predefined, select):
     return choices
 
 
-def to_fields(field_dict, field_classes):
+def generate_fields(field_dict, field_classes):
     fields = {}
 
     for field_name, field_data in field_dict['static_fields'].items():
@@ -37,3 +38,36 @@ def to_fields(field_dict, field_classes):
         )
 
     return fields
+
+
+def get_config_data(file):
+    data = {}
+
+    with open(file, 'r', encoding='utf-8') as f:
+        data['url'] = f.readline().strip()
+
+    return data
+
+
+def health_check(url):
+    url += 'api/health-check'
+
+    try:
+        r = requests.get(url)
+    except requests.exceptions.ConnectionError:
+        return False
+
+    return r.ok
+
+
+def send_template(url, doc_form, data):
+    url += 'api/generate-document'
+
+    payload = {
+        'doc_form': doc_form,
+        'data': data
+    }
+
+    r = requests.post(url, data=payload)
+
+    return r

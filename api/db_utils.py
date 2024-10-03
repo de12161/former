@@ -97,7 +97,7 @@ class FormDB:
 
         return fields
 
-    def _get_doc_form(self, form_label):
+    def get_doc_form(self, form_label):
         cur = self._con.cursor()
 
         doc = cur.execute('SELECT doc_form FROM form WHERE label_form = ?', (form_label,)).fetchone()[0]
@@ -132,7 +132,7 @@ class FormDB:
             forms[form_label] = {
                 'static_fields': self._get_static_fields(form_label),
                 'select_fields': self._get_select_fields(form_label),
-                'doc_form': self._get_doc_form(form_label)
+                'doc_form': self.get_doc_form(form_label)
             }
 
         return forms
@@ -210,7 +210,7 @@ class FormDB:
     def save_form(self, form_label, fields):
         cur = self._con.cursor()
 
-        cur.execute('INSERT INTO form(label_form, doc_form) VALUES (?, ?)', (form_label, fields['doc_form']))
+        cur.execute('INSERT INTO form(label_form, doc_form) VALUES (?, ?)', (form_label, sqlite3.Binary(fields['doc_form'])))
 
         if 'static_fields' in fields:
             for field_name, field_data in fields['static_fields'].items():
