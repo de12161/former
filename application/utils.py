@@ -1,4 +1,5 @@
 import requests
+import json
 from flask import flash
 
 
@@ -64,10 +65,13 @@ def send_template(url, doc_form, data):
     url += 'api/generate-document'
 
     payload = {
-        'doc_form': doc_form,
-        'data': data
+        'data': json.dumps(data)
     }
 
-    r = requests.post(url, data=payload)
+    files = {
+        'doc_form': ('template.docx', doc_form, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    }
+
+    r = requests.post(url, files=files, data=payload)
 
     return r

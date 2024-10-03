@@ -1,6 +1,7 @@
+from io import BytesIO
 from sqlite3 import IntegrityError
 
-from flask import Flask, render_template, request, session, url_for, redirect, flash
+from flask import Flask, render_template, request, session, url_for, redirect, flash, send_file
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
@@ -16,6 +17,8 @@ from enum import IntEnum, auto
 
 from secrets import token_urlsafe
 
+config = get_config_data('config.txt')
+db_name = 'forms.db'
 key = token_urlsafe(16)
 
 app = Flask(__name__)
@@ -23,9 +26,6 @@ app.secret_key = key
 
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
-
-db_name = 'forms.db'
-config = get_config_data('config.txt')
 
 
 class FieldType(IntEnum):
@@ -91,22 +91,15 @@ def index_post():
     del data['csrf_token']
     del data['submit']
 
-    print('Connecting to API...')
-
     connection = health_check(config['url'])
 
     if not connection:
-        print('Couldn\'t connect to API')
         flash('Couldn\'t connect to API')
         return redirect(url_for('index'))
 
-    print(f'Sending request...')
-
     response = send_template(config['url'], doc_form, data)
 
-    print(f'Response text: {response.text}')
-
-    return 'Request sent'
+    return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
 
 
 @app.route('/add-form', methods=['GET', 'POST'])
