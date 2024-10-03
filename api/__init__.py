@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf import CSRFProtect
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField, SubmitField, HiddenField
-from wtforms.validators import DataRequired
+from wtforms.validators import InputRequired
 
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
 from .utils import get_editor_choices, to_fields, flash_errors
@@ -41,19 +41,19 @@ field_class = {
     },
     FieldType.Text.value: {
         'class': StringField,
-        'validators': [DataRequired()]
+        'validators': [InputRequired()]
     },
     FieldType.TextArea.value: {
         'class': TextAreaField,
-        'validators': [DataRequired()]
+        'validators': [InputRequired()]
     },
     FieldType.File.value: {
         'class': FileField,
-        'validators': [DataRequired()]
+        'validators': [InputRequired()]
     },
     'select': {
         'class': SelectField,
-        'validators': [DataRequired()]
+        'validators': [InputRequired()]
     }
 }
 

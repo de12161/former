@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
-from wtforms.validators import DataRequired, Regexp, Length
+from wtforms.validators import InputRequired, Regexp, Length
 
 import re
 
@@ -21,7 +21,7 @@ def create_editor(choices, *args, **kwargs):
             Regexp(re.compile(r'^(?!validator)[a-z]\w*(?!\s+)$|^$', re.IGNORECASE))
         ])
         field_label = StringField('Field label')
-        field_type = SelectField('Field type', validators=[DataRequired()], choices=choices, validate_choice=False)
+        field_type = SelectField('Field type', validators=[InputRequired()], choices=choices, validate_choice=False)
         add_field = SubmitField('Add field')
         remove_field = SubmitField('Remove field')
 
@@ -30,7 +30,7 @@ def create_editor(choices, *args, **kwargs):
 
 class SaveFormForm(FlaskForm):
     form_name = StringField('Form label', validators=[
-        DataRequired(),
+        InputRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
     doc_form = StringField('Template')
@@ -39,12 +39,12 @@ class SaveFormForm(FlaskForm):
 
 
 class SelectFieldEditor(FlaskForm):
-    choice_name = StringField('Choice name', validators=[DataRequired()])
+    choice_name = StringField('Choice name', validators=[InputRequired()])
     add_choice = SubmitField('Add choice')
     remove_choice = SubmitField('Remove choice')
 
 
 class SaveSelectField(FlaskForm):
-    field_label = StringField('Field label', validators=[DataRequired(), Length(min=5)])
+    field_label = StringField('Field label', validators=[InputRequired(), Length(min=5)])
     save_field = SubmitField('Save field')
     delete_field = SubmitField('Delete field')
