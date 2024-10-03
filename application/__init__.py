@@ -11,7 +11,7 @@ from wtforms.validators import InputRequired
 
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
 from .utils import get_editor_choices, generate_fields, flash_errors, send_template, get_config_data, health_check
-from .db_utils import FormDB
+from .database import FormDB
 
 from enum import IntEnum, auto
 
