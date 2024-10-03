@@ -222,10 +222,8 @@ class FormDB:
 
         cur.close()
 
-
-def init_db(db):
-    with sqlite3.connect(db) as con:
-        cur = con.cursor()
+    def initialize(self):
+        cur = self._con.cursor()
 
         cur.execute('DROP TABLE IF EXISTS form')
         cur.execute('DROP TABLE IF EXISTS select_field')
@@ -270,15 +268,3 @@ def init_db(db):
         name_select TEXT NOT NULL
         )
         ''')
-
-
-def main():
-    db = input('Choose a name for the database: ')
-
-    print(f'Initializing {db}...')
-    init_db(db)
-    print('Database initialized')
-
-
-if __name__ == '__main__':
-    main()

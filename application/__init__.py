@@ -1,4 +1,7 @@
+import configparser
+
 from io import BytesIO
+
 from sqlite3 import IntegrityError
 
 from flask import Flask, render_template, request, session, url_for, redirect, flash, send_file
@@ -17,8 +20,15 @@ from enum import IntEnum, auto
 
 from secrets import token_urlsafe
 
-config = get_config_data('config.txt')
-db_name = 'forms.db'
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+dfs_url = config['DFS']['url']
+
+db_name = config['Database']['name']
+if not config['Database'].getboolean('initialized'):
+    FormDB(db_name).initialize()
+
 key = token_urlsafe(16)
 
 app = Flask(__name__)
@@ -91,13 +101,13 @@ def index_post():
     del data['csrf_token']
     del data['submit']
 
-    connection = health_check(config['url'])
+    connection = health_check(dfs_url)
 
     if not connection:
         flash('Couldn\'t connect to API')
         return redirect(url_for('index'))
 
-    response = send_template(config['url'], doc_form, data)
+    response = send_template(dfs_url, doc_form, data)
 
     return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
 
