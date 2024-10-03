@@ -29,6 +29,10 @@ db_name = config['Database']['name']
 if not config['Database'].getboolean('initialized'):
     FormDB(db_name).initialize()
 
+    config['Database']['initialized'] = 'true'
+    with open('config.ini', 'w') as config_file:
+        config.write(config_file)
+
 key = token_urlsafe(16)
 
 app = Flask(__name__)
