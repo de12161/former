@@ -91,8 +91,8 @@ def form_editor():
             field_type = request.form['field_type']
             field_label = request.form['field_label']
 
-            if len(field_name) == 0 or len(field_label) == 0:
-                flash('Invalid name or label')
+            if len(field_name) == 0:
+                flash('Invalid name')
                 return redirect(url_for('form_editor_page.form_editor'))
 
             if field_name in custom_fields['select_fields']:
