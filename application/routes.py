@@ -152,10 +152,18 @@ def field_editor():
         return render_template('field_editor.html', preview=preview, editor=editor, save=save)
 
     if save.delete_field.data and save.validate():
+        field_label = request.form['field_label']
+
+        for field in session['custom_fields']['select_fields'].values():
+            if field_label == field['label']:
+                flash('This field is being used in the form editor')
+                return redirect(url_for('field_editor_page.field_editor'))
+
         try:
-            g.db.delete_select_field(request.form['field_label'])
+            g.db.delete_select_field(field_label)
         except IntegrityError:
             flash('Cannot delete field as it is used by at least one form')
+
         return redirect(url_for('field_editor_page.field_editor'))
 
     if save.save_field.data and save.validate():
