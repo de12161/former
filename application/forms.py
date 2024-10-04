@@ -19,7 +19,7 @@ def create_form(fields, *args, **kwargs):
 def create_editor(choices, *args, **kwargs):
     class EditorForm(FlaskForm):
         field_name = StringField('Field name', validators=[
-            Regexp(re.compile(r'^(?!validator)[a-z]\w*(?!\s+)$|^$', re.IGNORECASE))
+            Regexp(re.compile(r'^(?!validator|csrf_token)[a-z]\w*(?!\s+)$|^$', re.IGNORECASE))
         ])
         field_label = StringField('Field label')
         field_type = SelectField('Field type', validators=[InputRequired()], choices=choices, validate_choice=False)
