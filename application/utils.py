@@ -36,15 +36,13 @@ def flash_errors(form):
 
 
 def get_editor_choices(predefined, select):
-    select_names = select
-
     choices = {}
 
     if len(predefined) > 0:
         choices['Pre-defined fields'] = predefined
 
-    if len(select_names) > 0:
-        choices['Custom select fields'] = select_names
+    if len(select) > 0:
+        choices['Custom select fields'] = select
 
     return choices
 
