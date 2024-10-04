@@ -53,15 +53,15 @@ def generate_fields(field_dict, field_classes):
     for field_name, field_data in field_dict['static_fields'].items():
         field_class_data = field_classes[int(field_data['type'])]
         fields[field_name] = field_class_data['class'](
-            field_data['label'] or field_name,
-            validators=field_class_data['validators']
+            label=field_data['label'] or field_name,
+            **field_class_data['kwargs']
         )
 
     for field_name, field_data in field_dict['select_fields'].items():
         field_class_data = field_classes['default']
         fields[field_name] = field_class_data['class'](
-            field_data['label'],
-            validators=field_class_data['validators'],
+            label=field_data['label'],
+            **field_class_data['kwargs'],
             choices=field_data['choices']
         )
 

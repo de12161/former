@@ -4,11 +4,12 @@ from flask import Flask, g
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
-from flask_wtf.file import FileRequired, FileAllowed
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField
+from wtforms.fields.form import FormField
+from wtforms.fields.simple import StringField, FileField, BooleanField
 from wtforms.validators import InputRequired
 
+from .forms import HTMLForm, ImageForm
 from .routes import index_page, form_editor_page, field_editor_page
 from .database import FormDB
 from .utils import Fields
@@ -43,31 +44,39 @@ csrf = CSRFProtect(app)
 fields = Fields(
     default_data={
         'class': SelectField,
-        'validators': [InputRequired()]
+        'kwargs': {
+            'validators': [InputRequired()]
+        }
     },
     Bool={
         'class': BooleanField,
-        'validators': []
+        'kwargs': {}
     },
     Text={
         'class': StringField,
-        'validators': [InputRequired()]
+        'kwargs': {
+            'validators': [InputRequired()]
+        }
     },
     TextArea={
-        'class': TextAreaField,
-        'validators': [InputRequired()]
+        'class': FormField,
+        'kwargs': {
+            'form_class': HTMLForm,
+        }
     },
     File={
-        'class': FileField,
-        'validators': [FileRequired(), FileAllowed(['png', 'jpg'])]
+        'class': FormField,
+        'kwargs': {
+            'form_class': ImageForm,
+        }
     }
 )
 
 predefined_fields = [
     (fields.type.Bool, 'Checkbox'),
     (fields.type.Text, 'Text Field'),
-    (fields.type.TextArea, 'Text Area'),
-    (fields.type.File, 'File Field')
+    (fields.type.TextArea, 'HTML Area'),
+    (fields.type.File, 'Image Field')
 ]
 
 
