@@ -10,15 +10,13 @@
 {% endblock %}
 
 {% block content %}
-{%- for field in preview %}
-    {%- if field.name != "csrf_token" %}
-        {% if field.type == "BooleanField" %}
-        {{ field.name }} {{ field }} {{ field.label }}
-        {% else %}
-        {{ field.name }} {{ field.label }} {{ field }}
-        {% endif %}
-        <br>
+{%- for field in preview if field.widget.input_type != 'hidden' %}
+    {% if field.type == "BooleanField" %}
+    {{ field.name }} {{ field }} {{ field.label }}
+    {% else %}
+    {{ field.name }} {{ field.label }} {{ field }}
     {% endif %}
+    <br>
 {% endfor %}
 {{ render_form(editor) }}
 {{ render_form(save) }}

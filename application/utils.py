@@ -3,6 +3,8 @@ import json
 
 from enum import IntEnum
 
+from io import BytesIO
+
 from flask import flash
 from wtforms.fields.simple import HiddenField
 
@@ -57,13 +59,13 @@ def generate_fields(field_dict, field_classes):
         if 'type' in field_class_data:
             fields[f'{field_name}-source'] = field_class_data['class'](
                 label=field_name,
-                **field_class_data.get('kwargs')
+                **field_class_data.get('kwargs', {})
             )
-            fields[f'{field_name}-__type'] = HiddenField(default=field_class_data['type'])
+            fields[f'{field_name}-__type'] = HiddenField(label='', default=field_class_data['type'])
         else:
             fields[field_name] = field_class_data['class'](
                 label=field_data['label'] or field_name,
-                **field_class_data.get('kwargs')
+                **field_class_data.get('kwargs', {})
             )
 
     for field_name, field_data in field_dict['select_fields'].items():
@@ -78,6 +80,14 @@ def generate_fields(field_dict, field_classes):
     return fields
 
 
+def img_to_bytes(img):
+    b = BytesIO()
+
+    img.save(b, format=img.format)
+
+    return b.getvalue()
+
+
 def health_check(url):
     url += 'api/health-check'
 
@@ -89,17 +99,16 @@ def health_check(url):
     return r.ok
 
 
-def send_template(url, doc_form, data):
+def send_template(url, doc_form, data, files):
     url += 'api/generate-document'
 
     payload = {
         'data': json.dumps(data)
     }
 
-    files = {
-        'doc_form': ('template.docx', doc_form, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-    }
+    file_payload = files
+    file_payload['doc_form'] = ('template.docx', doc_form, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
-    r = requests.post(url, files=files, data=payload)
+    r = requests.post(url, files=file_payload, data=payload)
 
     return r

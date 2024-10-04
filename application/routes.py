@@ -4,10 +4,11 @@ from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import SubmitField
 
 from io import BytesIO
+from PIL import Image
 
 from sqlite3 import IntegrityError
 
-from .utils import get_editor_choices, generate_fields, flash_errors, send_template, health_check
+from .utils import get_editor_choices, generate_fields, flash_errors, send_template, health_check, img_to_bytes
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
 
 
@@ -21,23 +22,6 @@ def index():
         forms[form_label] = form_id
 
     return render_template('index.html', forms=forms)
-
-    doc_form = g.db.get_doc_form(request.form['form_label'])
-
-    data = dict(request.form)
-    del data['form_label']
-    del data['csrf_token']
-    del data['submit']
-
-    connection = health_check(g.dfs_url)
-
-    if not connection:
-        flash('Couldn\'t connect to API')
-        return redirect(url_for('index_page.index'))
-
-    response = send_template(g.dfs_url, doc_form, data)
-
-    return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
 
 
 form_page = Blueprint('form_page', 'form_page', template_folder='templates')
@@ -53,12 +37,56 @@ def show(form_id):
     if request.method == 'GET':
         return render_template('form.html', form=form, form_label=form_label)
 
-    if form.validate_on_submit():
-        print(f'files: {request.files}')
-        return f'files: {request.files}<br><br><br>form: {request.form}'
+    if not form.validate_on_submit():
+        flash_errors(form)
+        return redirect(url_for('form_page.show', form_id=form_id))
 
-    flash_errors(form)
-    return redirect(url_for('form_page.show', form_id=form_id))
+    form_files = dict(request.files)
+    form_data = dict(request.form)
+    del form_data['csrf_token']
+    del form_data['submit']
+
+    data = {}
+
+    it = list(form_data.items())
+    it.extend(list(form_files.items()))
+
+    for key, value in it:
+        if '-' in key:
+            var_name, var_type = tuple(key.split('-'))
+
+            if not data.get(var_name):
+                data[var_name] = {}
+
+            data[var_name][var_type] = value
+        else:
+            data[key] = value
+
+    files = {}
+
+    i = 0
+    for value in data.values():
+        if value['__type'] == 'image':
+            img = Image.open(value['source'])
+            img_format = img.format.lower()
+            files[f'image{i}.{img_format}'] = (f'image{i}.{img_format}', img_to_bytes(img), f'image/{img_format}')
+            value['source'] = f'image{i}.{img_format}'
+            value['__height'] = img.height
+            value['__width'] = img.width
+            i += 1
+
+    doc_form = g.db.get_doc_form(form_label)
+
+    connection = health_check(g.dfs_url)
+
+    if not connection:
+        flash('Couldn\'t connect to API')
+        return redirect(url_for('form_page.show'))
+
+    response = send_template(g.dfs_url, doc_form, data, files)
+
+    return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
+
 
 
 form_editor_page = Blueprint('form_editor_page', 'form_editor_page', template_folder='templates')
