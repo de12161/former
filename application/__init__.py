@@ -8,10 +8,9 @@ from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField
 from wtforms.validators import InputRequired
 
-from .database import FormDB
 from .routes import index_page, form_editor_page, field_editor_page
-
-from enum import IntEnum, auto
+from .database import FormDB
+from .utils import Fields
 
 from secrets import token_urlsafe
 
@@ -40,42 +39,34 @@ app.secret_key = token_urlsafe(16)  # delete later
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
-
-class FieldType(IntEnum):
-    Bool = auto()
-    Text = auto()
-    TextArea = auto()
-    File = auto()
-
-
-field_class = {
-    FieldType.Bool.value: {
+fields = Fields(
+    default_data={
+        'class': SelectField,
+        'validators': [InputRequired()]
+    },
+    Bool={
         'class': BooleanField,
         'validators': []
     },
-    FieldType.Text.value: {
+    Text={
         'class': StringField,
         'validators': [InputRequired()]
     },
-    FieldType.TextArea.value: {
+    TextArea={
         'class': TextAreaField,
         'validators': [InputRequired()]
     },
-    FieldType.File.value: {
+    File={
         'class': FileField,
         'validators': [InputRequired()]
-    },
-    'select': {
-        'class': SelectField,
-        'validators': [InputRequired()]
     }
-}
+)
 
 predefined_fields = [
-    (FieldType.Bool.value, 'Checkbox'),
-    (FieldType.Text.value, 'Text Field'),
-    (FieldType.TextArea.value, 'Text Area'),
-    (FieldType.File.value, 'File Field')
+    (fields.type.Bool, 'Checkbox'),
+    (fields.type.Text, 'Text Field')
+    # (fields.type.TextArea, 'Text Area'),
+    # (fields.type.File, 'File Field')
 ]
 
 
@@ -83,5 +74,5 @@ predefined_fields = [
 def load_globals():
     g.db = FormDB(db_name)
     g.dfs_url = dfs_url
-    g.field_class = field_class
+    g.fields = fields
     g.predefined_fields = predefined_fields

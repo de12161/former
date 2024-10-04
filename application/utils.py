@@ -1,6 +1,32 @@
 import requests
 import json
+
+from enum import IntEnum
+
 from flask import flash
+
+
+class Fields:
+    def __init__(self, default_data, **kwargs):
+        types = kwargs
+        types['default'] = default_data
+        enum_dict = dict((v, k) for k, v in enumerate(types.keys()))
+
+        self._type = IntEnum('Type', enum_dict)
+        self._cls = {}
+
+        for ftype, data in types.items():
+            self._cls[self._type[ftype]] = data
+
+    @property
+    def type(self):
+        return self._type
+
+    def __getitem__(self, item):
+        if item in self.type:
+            return self._cls[self._type(item)]
+
+        return self._cls[self._type['default']]
 
 
 def flash_errors(form):
@@ -31,7 +57,7 @@ def generate_fields(field_dict, field_classes):
         fields[field_name] = field_class_data['class'](field_data['label'], validators=field_class_data['validators'])
 
     for field_name, field_data in field_dict['select_fields'].items():
-        field_class_data = field_classes['select']
+        field_class_data = field_classes['default']
         fields[field_name] = field_class_data['class'](
             field_data['label'],
             validators=field_class_data['validators'],

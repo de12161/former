@@ -17,7 +17,7 @@ def index():
     if request.method == 'GET':
         form = {}
         for form_label, field_data in g.db.get_forms().items():
-            fields = generate_fields(field_data, g.field_class)
+            fields = generate_fields(field_data, g.fields)
             fields['submit'] = SubmitField('Submit')
             fields['form_label'] = HiddenField(default=form_label)
             form[form_label] = create_form(fields)
@@ -52,7 +52,7 @@ def form_editor():
 
     editor = create_editor(get_editor_choices(g.predefined_fields, g.db.get_select_labels()))
     save = SaveFormForm()
-    preview = create_form(generate_fields(custom_fields, g.field_class))
+    preview = create_form(generate_fields(custom_fields, g.fields))
 
     if request.method == 'GET':
         return render_template('form_editor.html', preview=preview, editor=editor, save=save)
