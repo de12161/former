@@ -62,6 +62,10 @@ def form_editor():
         return redirect(url_for('form_editor_page.form_editor'))
 
     if save.save_form.data and save.validate():
+        if not save.doc_form.data:
+            flash('No template attached')
+            return redirect(url_for('form_editor_page.form_editor'))
+
         file = request.files['doc_form']
 
         custom_fields['doc_form'] = file.read()
