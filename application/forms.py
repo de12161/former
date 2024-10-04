@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
 from wtforms.validators import InputRequired, Regexp, Length
@@ -34,7 +34,7 @@ class SaveFormForm(FlaskForm):
         InputRequired(),
         Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
     ])
-    doc_form = FileField('Template')
+    doc_form = FileField('Template', validators=[FileAllowed(['docx'])])
     save_form = SubmitField('Save form')
     delete_form = SubmitField('Delete form')
 

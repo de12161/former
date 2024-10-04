@@ -4,6 +4,7 @@ from flask import Flask, g
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
+from flask_wtf.file import FileRequired, FileAllowed
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, FileField, TextAreaField, BooleanField
 from wtforms.validators import InputRequired
@@ -58,15 +59,15 @@ fields = Fields(
     },
     File={
         'class': FileField,
-        'validators': [InputRequired()]
+        'validators': [FileRequired(), FileAllowed(['png', 'jpg'])]
     }
 )
 
 predefined_fields = [
     (fields.type.Bool, 'Checkbox'),
-    (fields.type.Text, 'Text Field')
-    # (fields.type.TextArea, 'Text Area'),
-    # (fields.type.File, 'File Field')
+    (fields.type.Text, 'Text Field'),
+    (fields.type.TextArea, 'Text Area'),
+    (fields.type.File, 'File Field')
 ]
 
 
