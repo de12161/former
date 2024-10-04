@@ -10,7 +10,7 @@ from wtforms.fields.simple import StringField, BooleanField
 from wtforms.validators import InputRequired
 
 from .forms import HTMLForm, ImageForm
-from .routes import index_page, form_editor_page, field_editor_page
+from .routes import index_page, form_page, form_editor_page, field_editor_page
 from .database import FormDB
 from .utils import Fields
 
@@ -32,6 +32,7 @@ if not config['Database'].getboolean('initialized'):
 app = Flask(__name__)
 
 app.register_blueprint(index_page)
+app.register_blueprint(form_page)
 app.register_blueprint(form_editor_page)
 app.register_blueprint(field_editor_page)
 

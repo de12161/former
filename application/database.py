@@ -117,6 +117,38 @@ class FormDB:
 
         return fields
 
+    def get_forms_data(self):
+        forms = {}
+
+        cur = self._con.cursor()
+
+        rows = cur.execute('SELECT id_form, label_form FROM form').fetchall()
+
+        cur.close()
+
+        for row in rows:
+            form_id = row[0]
+            form_label = row[1]
+
+            forms[form_label] = form_id
+
+        return forms
+
+    def get_form_by_id(self, form_id):
+        cur = self._con.cursor()
+
+        form_label = cur.execute('SELECT label_form FROM form WHERE id_form = ?', (form_id,)).fetchone()[0]
+
+        cur.close()
+
+        fields = {
+            'static_fields': self._get_static_fields(form_label),
+            'select_fields': self._get_select_fields(form_label),
+            'doc_form': self.get_doc_form(form_label)
+        }
+
+        return form_label, fields
+
     def get_forms(self):
         forms = {}
 

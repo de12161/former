@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_form, render_field %}
 
-{% block title %}Forms{% endblock %}
+{% block title %}Select field editor{% endblock %}
+
 {% block nav %}
 <a href="{{ url_for('index_page.index') }}">Index</a>
 <a href="{{ url_for('form_editor_page.form_editor') }}">Form editor</a>

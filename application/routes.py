@@ -12,17 +12,15 @@ from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, 
 
 
 index_page = Blueprint('index_page', 'index_page', template_folder='templates')
-@index_page.route('/', methods=['GET', 'POST'])
+@index_page.get('/')
+@index_page.get('/forms')
 def index():
-    if request.method == 'GET':
-        form = {}
-        for form_label, field_data in g.db.get_forms().items():
-            fields = generate_fields(field_data, g.fields)
-            fields['submit'] = SubmitField('Submit')
-            fields['form_label'] = HiddenField(default=form_label)
-            form[form_label] = create_form(fields)
+    forms = {}
 
-        return render_template('index.html', forms=form)
+    for form_label, form_id in g.db.get_forms_data().items():
+        forms[form_label] = form_id
+
+    return render_template('index.html', forms=forms)
 
     doc_form = g.db.get_doc_form(request.form['form_label'])
 
@@ -40,6 +38,27 @@ def index():
     response = send_template(g.dfs_url, doc_form, data)
 
     return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
+
+
+form_page = Blueprint('form_page', 'form_page', template_folder='templates')
+@form_page.route('/forms/<int:form_id>', methods=['GET', 'POST'])
+def show(form_id):
+    form_label, form_fields = g.db.get_form_by_id(form_id)
+
+    form_fields = generate_fields(form_fields, g.fields)
+    form_fields['submit'] = SubmitField('Submit')
+    form_fields['form_label'] = HiddenField(default=form_label)
+
+    form = create_form(form_fields)
+
+    if request.method == 'GET':
+        return render_template('form.html', form=form, form_label=form_label)
+
+    if form.validate_on_submit():
+        return f'data: {request.data}\nfiles: {request.files}\nform: {request.form}'
+
+    flash_errors(form)
+    return redirect(url_for('form_page.show', form_id=form_id))
 
 
 form_editor_page = Blueprint('form_editor_page', 'form_editor_page', template_folder='templates')

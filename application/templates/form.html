@@ -1,20 +1,15 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_form %}
 
-{% block title %}Index{% endblock %}
+{% block title %}{{ form_label }}{% endblock %}
 
 {% block nav %}
-<b>Index</b>
+<a href="{{ url_for('index_page.index') }}">Back</a>
 <a href="{{ url_for('form_editor_page.form_editor') }}">Form editor</a>
 <a href="{{ url_for('field_editor_page.field_editor') }}">Field editor</a>
 {% endblock %}
 
 {% block content %}
-<ul>
-{%- for form_label, form_id in forms.items() %}
-    <li>
-        <a href="{{ url_for('form_page.show', form_id=form_id) }}">{{ form_label }}</a>
-    </li>
-{% endfor %}
-</ul>
+<p>{{ form_label }}</p>
+{{ render_form(form) }}
 {% endblock %}
