@@ -50,7 +50,6 @@ fields = Fields(
     },
     Bool={
         'class': BooleanField,
-        'kwargs': {}
     },
     Text={
         'class': StringField,
@@ -59,38 +58,18 @@ fields = Fields(
         }
     },
     TextArea={
-        'class': 'fields',
-        'fields': {
-            'source': {
-                'class': TextAreaField,
-                'kwargs': {
-                    'validators': [InputRequired()]
-                }
-            },
-            '__type': {
-                'class': HiddenField,
-                'kwargs': {
-                    'default': 'html'
-                }
-            }
-        }
+        'class': TextAreaField,
+        'kwargs': {
+            'validators': [InputRequired()],
+        },
+        'type': 'html'
     },
     File={
-        'class': 'fields',
-        'fields': {
-            'source': {
-                'class': FileField,
-                'kwargs': {
-                    'validators': [FileRequired(), FileAllowed(['png', 'jpg'])]
-                }
-            },
-            '__type': {
-                'class': HiddenField,
-                'kwargs': {
-                    'default': 'image'
-                }
-            }
-        }
+        'class': FileField,
+        'kwargs': {
+            'validators': [FileRequired(), FileAllowed(['png', 'jpg'])]
+        },
+        'type': 'image'
     }
 )
 

@@ -54,13 +54,16 @@ def generate_fields(field_dict, field_classes):
     for field_name, field_data in field_dict['static_fields'].items():
         field_class_data = field_classes[int(field_data['type'])]
 
-        if field_class_data['class'] == 'fields':
-            for ff_name, ff_field in field_class_data['fields'].items():
-                fields[f'{field_name}-{ff_name}'] = ff_field['class'](**ff_field['kwargs'], label=field_name if ff_field['class'] is not HiddenField else '')
+        if 'type' in field_class_data:
+            fields[f'{field_name}-source'] = field_class_data['class'](
+                label=field_name,
+                **field_class_data.get('kwargs')
+            )
+            fields[f'{field_name}-__type'] = HiddenField(default=field_class_data['type'])
         else:
             fields[field_name] = field_class_data['class'](
                 label=field_data['label'] or field_name,
-                **field_class_data['kwargs']
+                **field_class_data.get('kwargs')
             )
 
     for field_name, field_data in field_dict['select_fields'].items():
