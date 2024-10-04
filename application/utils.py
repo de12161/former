@@ -41,15 +41,6 @@ def generate_fields(field_dict, field_classes):
     return fields
 
 
-def get_config_data(file):
-    data = {}
-
-    with open(file, 'r', encoding='utf-8') as f:
-        data['url'] = f.readline().strip()
-
-    return data
-
-
 def health_check(url):
     url += 'api/health-check'
 
