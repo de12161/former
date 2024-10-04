@@ -4,6 +4,7 @@ import json
 from enum import IntEnum
 
 from flask import flash
+from wtforms.fields.simple import HiddenField
 
 
 class Fields:
@@ -52,13 +53,19 @@ def generate_fields(field_dict, field_classes):
 
     for field_name, field_data in field_dict['static_fields'].items():
         field_class_data = field_classes[int(field_data['type'])]
-        fields[field_name] = field_class_data['class'](
-            label=field_data['label'] or field_name,
-            **field_class_data['kwargs']
-        )
+
+        if field_class_data['class'] == 'fields':
+            for ff_name, ff_field in field_class_data['fields'].items():
+                fields[f'{field_name}-{ff_name}'] = ff_field['class'](**ff_field['kwargs'], label=field_name if ff_field['class'] is not HiddenField else '')
+        else:
+            fields[field_name] = field_class_data['class'](
+                label=field_data['label'] or field_name,
+                **field_class_data['kwargs']
+            )
 
     for field_name, field_data in field_dict['select_fields'].items():
         field_class_data = field_classes['default']
+
         fields[field_name] = field_class_data['class'](
             label=field_data['label'],
             **field_class_data['kwargs'],

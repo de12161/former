@@ -4,12 +4,11 @@ from flask import Flask, g
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.fields.choices import SelectField
-from wtforms.fields.form import FormField
-from wtforms.fields.simple import StringField, BooleanField
+from wtforms.fields.simple import StringField, BooleanField, HiddenField, TextAreaField
 from wtforms.validators import InputRequired
 
-from .forms import HTMLForm, ImageForm
 from .routes import index_page, form_page, form_editor_page, field_editor_page
 from .database import FormDB
 from .utils import Fields
@@ -60,15 +59,37 @@ fields = Fields(
         }
     },
     TextArea={
-        'class': FormField,
-        'kwargs': {
-            'form_class': HTMLForm,
+        'class': 'fields',
+        'fields': {
+            'source': {
+                'class': TextAreaField,
+                'kwargs': {
+                    'validators': [InputRequired()]
+                }
+            },
+            '__type': {
+                'class': HiddenField,
+                'kwargs': {
+                    'default': 'html'
+                }
+            }
         }
     },
     File={
-        'class': FormField,
-        'kwargs': {
-            'form_class': ImageForm,
+        'class': 'fields',
+        'fields': {
+            'source': {
+                'class': FileField,
+                'kwargs': {
+                    'validators': [FileRequired(), FileAllowed(['png', 'jpg'])]
+                }
+            },
+            '__type': {
+                'class': HiddenField,
+                'kwargs': {
+                    'default': 'image'
+                }
+            }
         }
     }
 )

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, flash, g, session, redirect, url_for, render_template, send_file
 
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import SubmitField, HiddenField
+from wtforms.fields.simple import SubmitField
 
 from io import BytesIO
 
@@ -47,7 +47,6 @@ def show(form_id):
 
     form_fields = generate_fields(form_fields, g.fields)
     form_fields['submit'] = SubmitField('Submit')
-    form_fields['form_label'] = HiddenField(default=form_label)
 
     form = create_form(form_fields)
 
@@ -55,7 +54,8 @@ def show(form_id):
         return render_template('form.html', form=form, form_label=form_label)
 
     if form.validate_on_submit():
-        return f'data: {request.data}\nfiles: {request.files}\nform: {request.form}'
+        print(f'files: {request.files}')
+        return f'files: {request.files}<br><br><br>form: {request.form}'
 
     flash_errors(form)
     return redirect(url_for('form_page.show', form_id=form_id))

@@ -1,8 +1,7 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import HiddenField, TextAreaField
 from wtforms.validators import InputRequired, Regexp, Length
 
 import re
@@ -28,16 +27,6 @@ def create_editor(choices, *args, **kwargs):
         remove_field = SubmitField('Remove field')
 
     return EditorForm(*args, **kwargs)
-
-
-class ImageForm(FlaskForm):
-    obj_type = HiddenField(default='image')
-    source = FileField('', validators=[FileRequired(), FileAllowed(['png', 'jpg'])])
-
-
-class HTMLForm(FlaskForm):
-    obj_type = HiddenField(default='html')
-    source = TextAreaField('', validators=[InputRequired()])
 
 
 class SaveFormForm(FlaskForm):

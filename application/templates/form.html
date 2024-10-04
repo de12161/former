@@ -9,6 +9,23 @@
 <a href="{{ url_for('field_editor_page.field_editor') }}">Field editor</a>
 {% endblock %}
 
+{%- macro render_fields(form) %}
+    {{ form.hidden_tag() }}
+    {%- for field in form if field.widget.input_type != 'hidden' %}
+        {% if field.type == "BooleanField" %}
+        {{ field }} {{ field.label }}
+        {% elif field.type == "SubmitField" %}
+        {{ field }}
+        {% elif field.type == "FormField" %}
+        {{ field.label }}
+        {{ render_fields(field) }}
+        {% else %}
+        {{ field.label }} {{ field }}
+        <br>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
 {% block content %}
 <p>{{ form_label }}</p>
 {{ render_form(form) }}
