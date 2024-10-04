@@ -33,10 +33,9 @@ if not config['Database'].getboolean('initialized'):
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
 
-key = token_urlsafe(16)
-
 app = Flask(__name__)
-app.secret_key = key
+app.config.from_object('flask_config')
+app.secret_key = token_urlsafe(16)  # delete later
 
 bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
