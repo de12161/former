@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf import CSRFProtect
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import StringField, BooleanField, HiddenField, TextAreaField
+from wtforms.fields.simple import StringField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired
 
 from .routes import index_page, form_page, form_editor_page, field_editor_page
