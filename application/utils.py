@@ -59,7 +59,7 @@ def generate_fields(field_dict, field_classes):
 
         if 'type' in field_class_data:
             fields[f'{field_name}-source'] = field_class_data['class'](
-                label=field_name,
+                label=field_data['label'] or field_name,
                 **field_class_data.get('kwargs', {})
             )
             fields[f'{field_name}-__type'] = HiddenField(label='', default=field_class_data['type'])
