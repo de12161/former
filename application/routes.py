@@ -187,11 +187,9 @@ def form_editor():
 
         if field_name in custom_fields['static_fields']:
             del custom_fields['static_fields'][field_name]
-            flash('Field removed')
 
         if field_name in custom_fields['select_fields']:
             del custom_fields['select_fields'][field_name]
-            flash('Field removed')
 
         editor.field_name.data = ''
 
