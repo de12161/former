@@ -172,12 +172,17 @@ class FormDB:
     def delete_select_field(self, select_label):
         cur = self._con.cursor()
 
+        if not cur.execute('SELECT id_select FROM select_field WHERE label_select=?', (select_label,)).fetchone():
+            cur.close()
+            return False
+
         cur.execute(
             'DELETE FROM select_field WHERE label_select=?',
             (select_label,)
         )
 
         cur.close()
+        return True
 
     def save_select_field(self, select_label, choices):
         cur = self._con.cursor()
@@ -232,12 +237,17 @@ class FormDB:
     def delete_form(self, form_label):
         cur = self._con.cursor()
 
+        if not cur.execute('SELECT id_form FROM form WHERE label_form=?', (form_label,)).fetchone():
+            cur.close()
+            return False
+
         cur.execute(
             'DELETE FROM form WHERE label_form=?',
             (form_label,)
         )
 
         cur.close()
+        return True
 
     def save_form(self, form_label, fields):
         cur = self._con.cursor()

@@ -113,7 +113,8 @@ def form_editor():
         return render_template('form_editor.html', preview=preview, editor=editor, save=save)
 
     if save.delete_form.data and save.validate():
-        g.db.delete_form(request.form['form_label'])
+        if g.db.delete_form(request.form['form_label']):
+            flash('Form deleted')
         return redirect(url_for('form_editor_page.form_editor'))
 
     if save.save_form.data and save.validate():
@@ -135,7 +136,9 @@ def form_editor():
             save.form_label.data = ''
         except IntegrityError:
             flash(f'Form {save.form_label.data} already exists')
+            return redirect(url_for('form_editor_page.form_editor'))
 
+        flash('Form saved')
         return redirect(url_for('form_editor_page.form_editor'))
 
     flash_errors(save)
@@ -184,9 +187,11 @@ def form_editor():
 
         if field_name in custom_fields['static_fields']:
             del custom_fields['static_fields'][field_name]
+            flash('Field removed')
 
         if field_name in custom_fields['select_fields']:
             del custom_fields['select_fields'][field_name]
+            flash('Field removed')
 
         editor.field_name.data = ''
 
@@ -213,15 +218,19 @@ def field_editor():
     if save.delete_field.data and save.validate():
         field_label = request.form['field_label']
 
-        for field in session['custom_fields']['select_fields'].values():
-            if field_label == field['label']:
-                flash('This field is being used in the form editor')
-                return redirect(url_for('field_editor_page.field_editor'))
+        editor_fields = session.get('custom_fields')
+        if editor_fields:
+            for field in editor_fields['select_fields'].values():
+                if field_label == field['label']:
+                    flash('This field is being used in the form editor')
+                    return redirect(url_for('field_editor_page.field_editor'))
 
         try:
-            g.db.delete_select_field(field_label)
+            if g.db.delete_select_field(field_label):
+                flash('Select field deleted')
         except IntegrityError:
             flash('Cannot delete field as it is used by at least one form')
+            return redirect(url_for('field_editor_page.field_editor'))
 
         return redirect(url_for('field_editor_page.field_editor'))
 
@@ -234,7 +243,9 @@ def field_editor():
             save.field_label.data = ''
         except IntegrityError:
             flash(f'Field {save.field_label.data} already exists')
+            return redirect(url_for('field_editor_page.field_editor'))
 
+        flash('Field saved')
         return redirect(url_for('field_editor_page.field_editor'))
 
     flash_errors(save)
@@ -258,6 +269,7 @@ def field_editor():
 
         if choice_name in choices:
             del choices[choices.index(choice_name)]
+            flash('Choice removed')
 
     session['choices'] = choices
 
