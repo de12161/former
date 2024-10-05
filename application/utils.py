@@ -42,10 +42,10 @@ def get_editor_choices(predefined, select):
     choices = {}
 
     if len(predefined) > 0:
-        choices['Pre-defined fields'] = predefined
+        choices['Предопределённые поля'] = predefined
 
     if len(select) > 0:
-        choices['Custom select fields'] = select
+        choices['Пользовательские поля выбора'] = select
 
     return choices
 

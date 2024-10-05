@@ -4,14 +4,14 @@
 {% block title %}Select field editor{% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('index_page.index') }}">Forms</a>
-<a href="{{ url_for('form_editor_page.form_editor') }}">Form editor</a>
-<b>Field editor</b>
+<a href="{{ url_for('index_page.index') }}">Формы</a>
+<a href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
+<b>Редактор полей выбора</b>
 {% endblock %}
 
 {% block content %}
 {% include "messages.html" %}
 {{ render_form(preview) }}
-{{ render_form(editor, "Editor") }}
-{{ render_form(save, "Save") }}
+{{ render_form(editor, "Редактор") }}
+{{ render_form(save, "Сохранение") }}
 {% endblock %}

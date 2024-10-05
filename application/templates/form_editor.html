@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 {% from "macros.jinja" import render_form, render_preview %}
 
-{% block title %}Form editor{% endblock %}
+{% block title %}Редактор форм{% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('index_page.index') }}">Forms</a>
-<b>Form editor</b>
-<a href="{{ url_for('field_editor_page.field_editor') }}">Field editor</a>
+<a href="{{ url_for('index_page.index') }}">Формы</a>
+<b>Редактор форм</b>
+<a href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
 {% endblock %}
 
 {% block content %}
 {% include "messages.html" %}
 {{ render_preview(preview) }}
-{{ render_form(editor, "Editor") }}
-{{ render_form(save, "Save") }}
+{{ render_form(editor, "Редактор") }}
+{{ render_form(save, "Сохранение") }}
 {% endblock %}

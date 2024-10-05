@@ -72,10 +72,10 @@ fields = Fields(
 )
 
 predefined_fields = [
-    (fields.type.Bool, 'Checkbox'),
-    (fields.type.Text, 'Text Field'),
-    (fields.type.TextArea, 'HTML Area'),
-    (fields.type.File, 'Image Field')
+    (fields.type.Bool, 'Флажок'),
+    (fields.type.Text, 'Текстовое поле'),
+    (fields.type.TextArea, 'Поле для HTML'),
+    (fields.type.File, 'Картинка')
 ]
 
 

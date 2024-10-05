@@ -32,13 +32,13 @@ def show(form_id):
     form_label, form_fields = g.db.get_form_by_id(form_id)
 
     form_fields = generate_fields(form_fields, g.fields)
-    form_fields['submit'] = SubmitField('Submit')
+    form_fields['submit'] = SubmitField('Отправить')
 
     form = create_form(form_fields)
 
     if request.method == 'GET':
         if not health_check(g.dfs_url):
-            flash('Couldn\'t connect to API')
+            flash('Не удалось подключиться к API')
         return render_template('form.html', form=form, form_label=form_label)
 
     if not form.validate_on_submit():
@@ -87,11 +87,11 @@ def show(form_id):
     try:
         response = send_template(g.dfs_url, doc_form, data, files)
     except requests.exceptions.ConnectionError:
-        flash('Couldn\'t connect to API')
+        flash('Не удалось подключиться к API')
         return redirect(url_for('form_page.show', form_id=form_id))
 
     if not response.ok:
-        flash('Something went wrong')
+        flash('Что-то пошло не так')
         return redirect(url_for('form_page.show', form_id=form_id))
 
     return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
@@ -118,7 +118,7 @@ def form_editor():
             return redirect(url_for('form_editor_page.form_editor'))
 
         if g.db.delete_form(request.form['form_label']):
-            flash('Form deleted')
+            flash('Форма удалена')
         return redirect(url_for('form_editor_page.form_editor'))
 
     if save.save_form.data:
@@ -127,7 +127,7 @@ def form_editor():
             return redirect(url_for('form_editor_page.form_editor'))
 
         if not save.doc_form.data:
-            flash('No template attached')
+            flash('Не приложен шаблон')
             return redirect(url_for('form_editor_page.form_editor'))
 
         file = request.files['doc_form']
@@ -143,10 +143,10 @@ def form_editor():
             session['custom_fields'] = custom_fields
             save.form_label.data = ''
         except IntegrityError:
-            flash(f'Form {save.form_label.data} already exists')
+            flash(f'Форма {save.form_label.data} уже существует')
             return redirect(url_for('form_editor_page.form_editor'))
 
-        flash('Form saved')
+        flash('Форма сохранена')
         return redirect(url_for('form_editor_page.form_editor'))
 
     if not editor.validate():
@@ -160,7 +160,7 @@ def form_editor():
             field_label = request.form['field_label']
 
             if len(field_name) == 0:
-                flash('Invalid name')
+                flash('Неверный идентификатор поля')
                 return redirect(url_for('form_editor_page.form_editor'))
 
             if field_name in custom_fields['select_fields']:
@@ -175,7 +175,7 @@ def form_editor():
             field_label = request.form['field_type']
 
             if len(field_name) == 0:
-                flash('Invalid name')
+                flash('Неверный идентификатор поля')
                 return redirect(url_for('form_editor_page.form_editor'))
 
             if field_name in custom_fields['static_fields']:
@@ -230,14 +230,14 @@ def field_editor():
         if editor_fields:
             for field in editor_fields['select_fields'].values():
                 if field_label == field['label']:
-                    flash('This field is being used in the form editor')
+                    flash('Это поле используется в редакторе форм')
                     return redirect(url_for('field_editor_page.field_editor'))
 
         try:
             if g.db.delete_select_field(field_label):
-                flash('Select field deleted')
+                flash('Поле выбора удалено')
         except IntegrityError:
-            flash('Cannot delete field as it is used by at least one form')
+            flash('Нельзя удалить поле, так как оно используется как минимум одной формой')
             return redirect(url_for('field_editor_page.field_editor'))
 
         return redirect(url_for('field_editor_page.field_editor'))
@@ -248,7 +248,7 @@ def field_editor():
             return redirect(url_for('field_editor_page.field_editor'))
 
         if len(choices) < 2:
-            flash('Too few choices in select field')
+            flash('Слишком мало опций для поля выбора')
             return redirect(url_for('field_editor_page.field_editor'))
 
         try:
@@ -258,10 +258,10 @@ def field_editor():
             session['choices'] = choices
             save.field_label.data = ''
         except IntegrityError:
-            flash(f'Field {save.field_label.data} already exists')
+            flash(f'Поле {save.field_label.data} уже существует')
             return redirect(url_for('field_editor_page.field_editor'))
 
-        flash('Field saved')
+        flash('Поле сохранено')
         return redirect(url_for('field_editor_page.field_editor'))
 
     if not editor.validate():
@@ -275,7 +275,7 @@ def field_editor():
 
         if choice_name not in choices:
             choices.append(choice_name)
-            flash('Choice added')
+            flash('Опция добавлена')
 
     if editor.remove_choice.data:
         editor.choice_name.data = ''
@@ -284,7 +284,7 @@ def field_editor():
 
         if choice_name in choices:
             del choices[choices.index(choice_name)]
-            flash('Choice removed')
+            flash('Опция убрана')
 
     session['choices'] = choices
 

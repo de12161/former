@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Формы{% endblock %}
 
 {% block nav %}
-<b>Forms</b>
-<a href="{{ url_for('form_editor_page.form_editor') }}">Form editor</a>
-<a href="{{ url_for('field_editor_page.field_editor') }}">Field editor</a>
+<b>Формы</b>
+<a href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
+<a href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
 {% endblock %}
 
 {% block content %}

@@ -18,34 +18,33 @@ def create_form(fields, *args, **kwargs):
 
 def create_editor(choices, *args, **kwargs):
     class EditorForm(FlaskForm):
-        field_name = StringField('Field name', validators=[
-            Regexp(re.compile(r'^(?!validator|csrf_token)[a-z]\w*(?!\s+)$|^$', re.IGNORECASE))
+        field_name = StringField('Идентификатор поля', validators=[
+            Regexp(re.compile(r'^(?!validator|csrf_token)[a-z]\w*(?!\s+)$|^$', re.IGNORECASE), message='Неверный идентификатор поля')
         ])
-        field_label = StringField('Field label')
-        field_type = SelectField('Field type', validators=[InputRequired()], choices=choices, validate_choice=False)
-        add_field = SubmitField('Add field')
-        remove_field = SubmitField('Remove field')
+        field_label = StringField('Название поля')
+        field_type = SelectField('Тип поля', validators=[InputRequired(message='Тип поля обязателен')], choices=choices, validate_choice=False)
+        add_field = SubmitField('Добавить поле')
+        remove_field = SubmitField('Убрать поле')
 
     return EditorForm(*args, **kwargs)
 
 
 class SaveFormForm(FlaskForm):
-    form_label = StringField('Form label', validators=[
-        InputRequired(),
-        Regexp(re.compile(r'^(\w|\w[\w ]*\w)(?!\s+)$', re.IGNORECASE))
+    form_label = StringField('Название формы', validators=[
+        Regexp(re.compile(r'^([\wа-я]|[\wа-я][\w а-я]*[\wа-я])(?!\s+)$', re.IGNORECASE), message='Неверное название формы')
     ])
-    doc_form = FileField('Template', validators=[FileAllowed(['docx'])])
-    save_form = SubmitField('Save form')
-    delete_form = SubmitField('Delete form')
+    doc_form = FileField('Шаблон', validators=[FileAllowed(['docx'], message='Формат шаблона должен быть .docx')])
+    save_form = SubmitField('Сохранить форму')
+    delete_form = SubmitField('Удалить форму')
 
 
 class SelectFieldEditor(FlaskForm):
-    choice_name = StringField('Choice name', validators=[InputRequired()])
-    add_choice = SubmitField('Add choice')
-    remove_choice = SubmitField('Remove choice')
+    choice_name = StringField('Название опции', validators=[InputRequired(message='Опция должна иметь название')])
+    add_choice = SubmitField('Добавить опцию')
+    remove_choice = SubmitField('Убрать опцию')
 
 
 class SaveSelectField(FlaskForm):
-    field_label = StringField('Field label', validators=[InputRequired(), Regexp(re.compile(r'^.*[^0-9].*$'))])
-    save_field = SubmitField('Save field')
-    delete_field = SubmitField('Delete field')
+    field_label = StringField('Название поля', validators=[InputRequired(message='Поле должно иметь название'), Regexp(re.compile(r'^.*[^0-9].*$'), message='Название поля не может состоять полностью из цифр')])
+    save_field = SubmitField('Сохранить поле')
+    delete_field = SubmitField('Удалить поле')
