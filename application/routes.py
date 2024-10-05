@@ -1,3 +1,5 @@
+import requests.exceptions
+
 from flask import Blueprint, request, flash, g, session, redirect, url_for, render_template, send_file
 
 from wtforms.fields.choices import SelectField
@@ -35,6 +37,8 @@ def show(form_id):
     form = create_form(form_fields)
 
     if request.method == 'GET':
+        if not health_check(g.dfs_url):
+            flash('Couldn\'t connect to API')
         return render_template('form.html', form=form, form_label=form_label)
 
     if not form.validate_on_submit():
@@ -66,28 +70,31 @@ def show(form_id):
 
     i = 0
     for value in data.values():
-        if type(value) is dict:
-            if value.get('__type') == 'image':
-                img = Image.open(value['source'])
-                img_format = img.format.lower()
-                files[f'image{i}.{img_format}'] = (f'image{i}.{img_format}', img_to_bytes(img), f'image/{img_format}')
-                value['source'] = f'image{i}.{img_format}'
-                value['__height'] = img.height
-                value['__width'] = img.width
-                i += 1
+        if type(value) is not dict:
+            continue
+
+        if value.get('__type') == 'image':
+            img = Image.open(value['source'])
+            img_format = img.format.lower()
+            files[f'image{i}.{img_format}'] = (f'image{i}.{img_format}', img_to_bytes(img), f'image/{img_format}')
+            value['source'] = f'image{i}.{img_format}'
+            value['__height'] = img.height
+            value['__width'] = img.width
+            i += 1
 
     doc_form = g.db.get_doc_form(form_label)
 
-    connection = health_check(g.dfs_url)
-
-    if not connection:
+    try:
+        response = send_template(g.dfs_url, doc_form, data, files)
+    except requests.exceptions.ConnectionError:
         flash('Couldn\'t connect to API')
         return redirect(url_for('form_page.show', form_id=form_id))
 
-    response = send_template(g.dfs_url, doc_form, data, files)
+    if not response.ok:
+        flash('Something went wrong')
+        return redirect(url_for('form_page.show', form_id=form_id))
 
     return send_file(BytesIO(response.content), as_attachment=True, download_name='document.docx')
-
 
 
 form_editor_page = Blueprint('form_editor_page', 'form_editor_page', template_folder='templates')
