@@ -66,14 +66,15 @@ def show(form_id):
 
     i = 0
     for value in data.values():
-        if value['__type'] == 'image':
-            img = Image.open(value['source'])
-            img_format = img.format.lower()
-            files[f'image{i}.{img_format}'] = (f'image{i}.{img_format}', img_to_bytes(img), f'image/{img_format}')
-            value['source'] = f'image{i}.{img_format}'
-            value['__height'] = img.height
-            value['__width'] = img.width
-            i += 1
+        if type(value) is dict:
+            if value.get('__type') == 'image':
+                img = Image.open(value['source'])
+                img_format = img.format.lower()
+                files[f'image{i}.{img_format}'] = (f'image{i}.{img_format}', img_to_bytes(img), f'image/{img_format}')
+                value['source'] = f'image{i}.{img_format}'
+                value['__height'] = img.height
+                value['__width'] = img.width
+                i += 1
 
     doc_form = g.db.get_doc_form(form_label)
 
