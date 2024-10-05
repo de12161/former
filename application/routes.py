@@ -81,7 +81,7 @@ def show(form_id):
 
     if not connection:
         flash('Couldn\'t connect to API')
-        return redirect(url_for('form_page.show'))
+        return redirect(url_for('form_page.show', form_id=form_id))
 
     response = send_template(g.dfs_url, doc_form, data, files)
 
