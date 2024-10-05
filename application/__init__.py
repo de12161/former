@@ -1,7 +1,6 @@
 import configparser
 
 from flask import Flask, g
-from flask_bootstrap import Bootstrap5
 
 from flask_wtf import CSRFProtect
 from flask_wtf.file import FileField, FileRequired, FileAllowed
@@ -38,7 +37,6 @@ app.register_blueprint(field_editor_page)
 app.config.from_object('flask_config')
 app.secret_key = token_urlsafe(16)  # delete later
 
-bootstrap = Bootstrap5(app)
 csrf = CSRFProtect(app)
 
 fields = Fields(
