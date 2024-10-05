@@ -89,7 +89,7 @@ def img_to_bytes(img):
 
 
 def health_check(url):
-    url += 'api/health-check'
+    url += '/api/health-check'
 
     try:
         r = requests.get(url)
@@ -100,7 +100,7 @@ def health_check(url):
 
 
 def send_template(url, doc_form, data, files):
-    url += 'api/generate-document'
+    url += '/api/generate-document'
 
     payload = {
         'data': json.dumps(data)
