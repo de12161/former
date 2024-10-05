@@ -35,7 +35,8 @@ class Fields:
 def flash_errors(form):
     if form.errors:
         for error in form.errors.values():
-            flash(error)
+            if error:
+                flash(error[0])
 
 
 def get_editor_choices(predefined, select):

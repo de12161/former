@@ -4,14 +4,16 @@
 {% block title %}Редактор форм{% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('index_page.index') }}">Формы</a>
-<b>Редактор форм</b>
-<a href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
+<a class="nav-item" href="{{ url_for('index_page.index') }}">Формы</a>
+<b class="nav-item" >Редактор форм</b>
+<a class="nav-item" href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
 {% endblock %}
 
 {% block content %}
 {% include "messages.html" %}
-{{ render_preview(preview) }}
-{{ render_form(editor, "Редактор") }}
-{{ render_form(save, "Сохранение") }}
+<div class="flex-container">{{ render_preview(preview) }}</div>
+<div class="flex-container">
+    {{ render_form(editor, "Редактор") }}
+    {{ render_form(save, "Сохранение") }}
+</div>
 {% endblock %}

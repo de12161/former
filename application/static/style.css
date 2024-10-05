@@ -1,0 +1,106 @@
+html {
+    background-color: #dddddd;
+}
+
+nav {
+    margin: 1rem;
+    border: 1px solid;
+    padding: 1rem;
+    align: center;
+    background-color: white;
+    border-radius: 2rem;
+}
+
+.nav-item {
+    padding: 0.4rem;
+    text-align: center;
+    background-color: #eeeeee;
+    border: 1px solid;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: black;
+}
+
+.nav-item:hover {
+    background-color: #dddddd;
+}
+
+.content {
+    border-radius: 2rem;
+    background-color: white;
+    border: 1px solid;
+}
+
+.form-container {
+    border: 1px solid;
+    border-radius: 2rem;
+    margin: 1rem;
+    padding: 1rem;
+
+}
+
+.form-preview {
+    border: 1px solid;
+    border-radius: 2rem;
+    margin: 1rem;
+    padding: 1rem;
+}
+
+.flex-container {
+    display: flex;
+}
+
+.flashes {
+    padding: 0.5rem;
+    border-radius: 2rem;
+    background-color: #dfdfff;
+    margin-top: 1rem;
+}
+
+.form-label {
+    text-align: center;
+    font-style: oblique;
+    font-size: 1.1rem;
+}
+
+.form-list {
+    display: flex;
+}
+
+.form-link {
+    text-decoration: none;
+    padding: 0.5rem;
+    border: 1px solid;
+    border-radius: 2rem;
+    margin: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    color: black;
+    background-color: #eeeeee;
+}
+
+.form-link:hover {
+    background-color: #dddddd;
+}
+
+input {
+    outline: 1px solid;
+    border-radius: 2rem;
+    padding: 0.5rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    border: none;
+}
+
+select {
+    outline: 1px solid;
+    border-radius: 2rem;
+    border: none;
+}
+
+textarea {
+    outline: 1px solid;
+    border-radius: 2rem;
+    border: none;
+    padding: 1rem
+}

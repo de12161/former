@@ -1,16 +1,18 @@
 {%- macro render_field(field) %}
+<div class="field-container">
     {% if field.type == "BooleanField" %}
     {{ caller() if caller }} {{ field }} {{ field.label }}
     {% elif field.type == "SubmitField" %}
-    {{ field }}
+    {{ field(class="form-button") }}
     {% else %}
     {{ caller() if caller }} {{ field.label }} {{ field }}
     {% endif %}
+</div>
 {% endmacro %}
 
 {%- macro render_name(field) %}
     {%- call render_field(field) %}
-        {{ field.name }}
+        <div class="field-name">{{ field.name }}</div>
     {% endcall %}
 {% endmacro %}
 
@@ -22,17 +24,21 @@
 {% endmacro %}
 
 {%- macro render_preview(form) %}
+    <div class="form-preview">
     {%- call(field) render_nonhidden(form) %}
         {{ render_name(field) }}
     {% endcall %}
+    </div>
 {% endmacro %}
 
 {%- macro render_form(form, label) %}
-    <p>{{ label }}</p>
-    <form method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    {%- call(field) render_nonhidden(form) %}
-        {{ render_field(field) }}
-    {% endcall %}
-    </form>
+    <div class="form-container">
+        <p class="form-label">{{ label }}</p>
+        <form method="POST" enctype="multipart/form-data" class="form">
+        {{ form.hidden_tag() }}
+        {%- call(field) render_nonhidden(form) %}
+            {{ render_field(field) }}
+        {% endcall %}
+        </form>
+    </div>
 {% endmacro %}

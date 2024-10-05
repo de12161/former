@@ -3,17 +3,15 @@
 {% block title %}Формы{% endblock %}
 
 {% block nav %}
-<b>Формы</b>
-<a href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
-<a href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
+<b class="nav-item" >Формы</b>
+<a class="nav-item" href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
+<a class="nav-item" href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
 {% endblock %}
 
 {% block content %}
-<ul>
+<div class="form-list">
 {%- for form_label, form_id in forms.items() %}
-    <li>
-        <a href="{{ url_for('form_page.show', form_id=form_id) }}">{{ form_label }}</a>
-    </li>
+    <a class="form-link" href="{{ url_for('form_page.show', form_id=form_id) }}">{{ form_label }}</a>
 {% endfor %}
-</ul>
+</div>
 {% endblock %}
