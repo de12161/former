@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
-from wtforms.validators import InputRequired, Regexp, Length
+from wtforms.validators import InputRequired, Regexp
 
 import re
 
@@ -46,6 +46,6 @@ class SelectFieldEditor(FlaskForm):
 
 
 class SaveSelectField(FlaskForm):
-    field_label = StringField('Field label', validators=[InputRequired(), Length(min=5)])
+    field_label = StringField('Field label', validators=[InputRequired(), Regexp(re.compile(r'^.*[^0-9].*$'))])
     save_field = SubmitField('Save field')
     delete_field = SubmitField('Delete field')

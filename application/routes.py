@@ -148,7 +148,7 @@ def form_editor():
         return redirect(url_for('form_editor_page.form_editor'))
 
     if editor.add_field.data:
-        if len(request.form['field_type']) < 5:
+        if request.form['field_type'].isdigit():
             field_name = request.form['field_name']
             field_type = request.form['field_type']
             field_label = request.form['field_label']
