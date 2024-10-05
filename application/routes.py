@@ -233,6 +233,10 @@ def field_editor():
         return redirect(url_for('field_editor_page.field_editor'))
 
     if save.save_field.data and save.validate():
+        if len(choices) < 2:
+            flash('Too few choices in select field')
+            return redirect(url_for('field_editor_page.field_editor'))
+
         try:
             g.db.save_select_field(request.form['field_label'], choices)
 
