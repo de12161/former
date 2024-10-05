@@ -112,12 +112,20 @@ def form_editor():
     if request.method == 'GET':
         return render_template('form_editor.html', preview=preview, editor=editor, save=save)
 
-    if save.delete_form.data and save.validate():
+    if save.delete_form.data:
+        if not save.validate():
+            flash_errors(save)
+            return redirect(url_for('form_editor_page.form_editor'))
+
         if g.db.delete_form(request.form['form_label']):
             flash('Form deleted')
         return redirect(url_for('form_editor_page.form_editor'))
 
-    if save.save_form.data and save.validate():
+    if save.save_form.data:
+        if not save.validate():
+            flash_errors(save)
+            return redirect(url_for('form_editor_page.form_editor'))
+
         if not save.doc_form.data:
             flash('No template attached')
             return redirect(url_for('form_editor_page.form_editor'))
@@ -140,8 +148,6 @@ def form_editor():
 
         flash('Form saved')
         return redirect(url_for('form_editor_page.form_editor'))
-
-    flash_errors(save)
 
     if not editor.validate():
         flash_errors(editor)
@@ -213,7 +219,11 @@ def field_editor():
     if request.method == 'GET':
         return render_template('field_editor.html', preview=preview, editor=editor, save=save)
 
-    if save.delete_field.data and save.validate():
+    if save.delete_field.data:
+        if not save.validate():
+            flash_errors(save)
+            return redirect(url_for('field_editor_page.field_editor'))
+
         field_label = request.form['field_label']
 
         editor_fields = session.get('custom_fields')
@@ -232,7 +242,11 @@ def field_editor():
 
         return redirect(url_for('field_editor_page.field_editor'))
 
-    if save.save_field.data and save.validate():
+    if save.save_field.data:
+        if not save.validate():
+            flash_errors(save)
+            return redirect(url_for('field_editor_page.field_editor'))
+
         if len(choices) < 2:
             flash('Too few choices in select field')
             return redirect(url_for('field_editor_page.field_editor'))
@@ -250,8 +264,6 @@ def field_editor():
         flash('Field saved')
         return redirect(url_for('field_editor_page.field_editor'))
 
-    flash_errors(save)
-
     if not editor.validate():
         flash_errors(editor)
         return redirect(url_for('field_editor_page.field_editor'))
@@ -263,6 +275,7 @@ def field_editor():
 
         if choice_name not in choices:
             choices.append(choice_name)
+            flash('Choice added')
 
     if editor.remove_choice.data:
         editor.choice_name.data = ''
