@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form, render_field %}
+{% from "macros.jinja" import render_form %}
 
 {% block title %}Select field editor{% endblock %}
 
@@ -10,7 +10,8 @@
 {% endblock %}
 
 {% block content %}
+{% include "messages.html" %}
 {{ render_form(preview) }}
-{{ render_form(editor) }}
-{{ render_form(save) }}
+{{ render_form(editor, "Editor") }}
+{{ render_form(save, "Save") }}
 {% endblock %}

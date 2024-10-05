@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from 'bootstrap5/form.html' import render_form, render_field %}
+{% from "macros.jinja" import render_form, render_preview %}
 
 {% block title %}Form editor{% endblock %}
 
@@ -10,14 +10,8 @@
 {% endblock %}
 
 {% block content %}
-{%- for field in preview if field.widget.input_type != 'hidden' %}
-    {% if field.type == "BooleanField" %}
-    {{ field.name }} {{ field }} {{ field.label }}
-    {% else %}
-    {{ field.name }} {{ field.label }} {{ field }}
-    {% endif %}
-    <br>
-{% endfor %}
-{{ render_form(editor) }}
-{{ render_form(save) }}
+{% include "messages.html" %}
+{{ render_preview(preview) }}
+{{ render_form(editor, "Editor") }}
+{{ render_form(save, "Save") }}
 {% endblock %}

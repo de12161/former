@@ -1,0 +1,38 @@
+{%- macro render_field(field) %}
+    {% if field.type == "BooleanField" %}
+    {{ caller() if caller }} {{ field }} {{ field.label }}
+    {% elif field.type == "SubmitField" %}
+    {{ field }}
+    {% else %}
+    {{ caller() if caller }} {{ field.label }} {{ field }}
+    {% endif %}
+{% endmacro %}
+
+{%- macro render_name(field) %}
+    {%- call render_field(field) %}
+        {{ field.name }}
+    {% endcall %}
+{% endmacro %}
+
+{%- macro render_nonhidden(form) %}
+    {%- for field in form if field.widget.input_type != 'hidden' %}
+        {{ caller(field) }}
+        <br>
+    {% endfor %}
+{% endmacro %}
+
+{%- macro render_preview(form) %}
+    {%- call(field) render_nonhidden(form) %}
+        {{ render_name(field) }}
+    {% endcall %}
+{% endmacro %}
+
+{%- macro render_form(form, label) %}
+    <p>{{ label }}</p>
+    <form method="POST">
+    {{ form.hidden_tag() }}
+    {%- call(field) render_nonhidden(form) %}
+        {{ render_field(field) }}
+    {% endcall %}
+    </form>
+{% endmacro %}
