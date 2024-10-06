@@ -1,7 +1,7 @@
 import configparser
 import os
 
-from flask import Flask, g
+from flask import Flask, g, render_template
 
 from flask_wtf import CSRFProtect
 from flask_wtf.file import FileField, FileRequired, FileAllowed
@@ -92,3 +92,13 @@ def load_globals():
     g.predefined_fields = predefined_fields
     g.editor_access = editor_access
     g.editor_requests = editor_requests
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(503)
+def service_not_available(e):
+    return render_template('503.html'), 503
