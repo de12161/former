@@ -300,6 +300,9 @@ def field_editor():
 auth_page = Blueprint('auth_page', 'auth_page', template_folder='templates')
 @auth_page.route('/auth', methods=['GET', 'POST'])
 def auth():
+    if g.editor_access:
+        return abort(503)
+
     auth_form = AuthForm()
 
     if request.method == 'GET':
