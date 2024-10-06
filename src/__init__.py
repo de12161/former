@@ -23,7 +23,7 @@ config.read('config.ini')
 
 dfs_url = config['DFS']['url']
 
-db_name = config['Database']['name']
+db_name = 'forms.db'
 FormDB(db_name).initialize()
 
 app = Flask(__name__)
