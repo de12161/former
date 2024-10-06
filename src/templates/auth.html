@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "macros.jinja" import render_form %}
 
-{% block title %}{{ form_label }}{% endblock %}
+{% block title %}Авторизация{% endblock %}
 
 {% block nav %}
 <a class="nav-item" href="{{ url_for('index_page.index') }}">Назад</a>
@@ -10,6 +10,6 @@
 {% block content %}
 {% include "messages.html" %}
 <div class="flex-container">
-    {{ render_form(form, form_label) }}
+    {{ render_form(auth_form, "Авторизация") }}
 </div>
 {% endblock %}

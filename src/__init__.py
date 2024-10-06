@@ -9,8 +9,8 @@ from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired
 
-from .routes import index_page, form_page, form_editor_page, field_editor_page
-from .database import FormDB
+from .routes import index_page, form_page, form_editor_page, field_editor_page, auth_page
+from .database import FormDB, EditorDB
 from .utils import Fields
 
 from dotenv import load_dotenv
@@ -23,9 +23,13 @@ config.read('config.ini')
 
 dfs_url = config['DFS']['url']
 editor_access = config.getboolean('Editor_access', 'enabled')
+editor_requests = config.getboolean('Editor_access', 'allow_requests')
 
 db_name = 'forms.db'
 FormDB(db_name).initialize()
+
+editor_db = 'editors.db'
+EditorDB(editor_db).initialize()
 
 app = Flask(__name__)
 
@@ -35,6 +39,7 @@ app.register_blueprint(index_page)
 app.register_blueprint(form_page)
 app.register_blueprint(form_editor_page)
 app.register_blueprint(field_editor_page)
+app.register_blueprint(auth_page)
 
 csrf = CSRFProtect(app)
 
@@ -81,7 +86,9 @@ predefined_fields = [
 @app.before_request
 def load_globals():
     g.db = FormDB(db_name)
+    g.editors = EditorDB(editor_db)
     g.dfs_url = dfs_url
     g.fields = fields
     g.predefined_fields = predefined_fields
-    g.editor_mode = bool(editor_access)
+    g.editor_access = editor_access
+    g.editor_requests = editor_requests

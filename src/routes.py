@@ -11,19 +11,19 @@ from PIL import Image
 from sqlite3 import IntegrityError
 
 from .utils import get_editor_choices, generate_fields, flash_errors, send_template, health_check, img_to_bytes
-from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField
-
+from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField, AuthForm
 
 index_page = Blueprint('index_page', 'index_page', template_folder='templates')
 @index_page.get('/')
 @index_page.get('/forms')
 def index():
+    editor_mode = bool(g.editor_access or session.get('authorized'))
     forms = {}
 
     for form_label, form_id in g.db.get_forms_data().items():
         forms[form_label] = form_id
 
-    return render_template('index.html', forms=forms, editor_mode=g.editor_mode)
+    return render_template('index.html', forms=forms, editor_mode=editor_mode)
 
 
 form_page = Blueprint('form_page', 'form_page', template_folder='templates')
@@ -39,7 +39,7 @@ def show(form_id):
     if request.method == 'GET':
         if not health_check(g.dfs_url):
             flash('Не удалось подключиться к API')
-        return render_template('form.html', form=form, form_label=form_label, editor_mode=g.editor_mode)
+        return render_template('form.html', form=form, form_label=form_label)
 
     if not form.validate_on_submit():
         flash_errors(form)
@@ -100,7 +100,7 @@ def show(form_id):
 form_editor_page = Blueprint('form_editor_page', 'form_editor_page', template_folder='templates')
 @form_editor_page.route('/form-editor', methods=['GET', 'POST'])
 def form_editor():
-    if not g.editor_mode:
+    if not (g.editor_access or session.get('authorized')):
         return abort(401)
 
     if 'custom_fields' in session:
@@ -210,7 +210,7 @@ def form_editor():
 field_editor_page = Blueprint('field_editor_page', 'field_editor_page', template_folder='templates')
 @field_editor_page.route('/field-editor', methods=['GET', 'POST'])
 def field_editor():
-    if not g.editor_mode:
+    if not (g.editor_access or session.get('authorized')):
         return abort(401)
 
     if 'choices' in session:
@@ -295,3 +295,50 @@ def field_editor():
     session['choices'] = choices
 
     return redirect(url_for('field_editor_page.field_editor'))
+
+
+auth_page = Blueprint('auth_page', 'auth_page', template_folder='templates')
+@auth_page.route('/auth', methods=['GET', 'POST'])
+def auth():
+    auth_form = AuthForm()
+
+    if request.method == 'GET':
+        return render_template('auth.html', auth_form=auth_form)
+
+    if not auth_form.validate_on_submit():
+        flash_errors(auth_form)
+        return redirect(url_for('auth_page.auth'))
+
+    username = request.form['username']
+    password = request.form['password']
+
+    if len(password) < 8:
+        flash('Пароль должен содержать хотя бы 8 символов')
+        return redirect(url_for('auth_page.auth'))
+
+    if password != request.form['repeat_pass']:
+        flash('Пароли не совпадают')
+        return redirect(url_for('auth_page.auth'))
+
+    if auth_form.send_rq.data:
+        if not g.editor_requests:
+            flash('Запросы доступа на данный момент не принимаются')
+            return redirect(url_for('auth_page.auth'))
+
+        g.editors.register(username, password)
+        flash('Запрос отправлен')
+        return redirect(url_for('auth_page.auth'))
+
+    if auth_form.authorize.data:
+        if g.editors.authenticate(username, password):
+            if g.editors.is_approved(username):
+                session['authorized'] = True
+                return redirect(url_for('index_page.index'))
+
+            flash('Ваш запрос пока что не был одобрен')
+            return redirect(url_for('auth_page.auth'))
+
+        flash('Неверное имя или пароль')
+        return redirect(url_for('auth_page.auth'))
+
+    return redirect(url_for('auth_page.auth'))
