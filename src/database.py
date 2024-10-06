@@ -382,6 +382,7 @@ class EditorDB:
         name TEXT PRIMARY KEY,
         password TEXT NOT NULL,
         approved INTEGER NOT NULL CHECK (approved IN (0, 1)) DEFAULT (0)
+        )
         ''')
 
         cur.close()
