@@ -1,4 +1,5 @@
 import sqlite3
+from hashlib import sha256
 
 
 class FormDB:
@@ -303,6 +304,87 @@ class FormDB:
         id_select INTEGER REFERENCES select_field(id_select) ON DELETE RESTRICT NOT NULL,
         name_select TEXT NOT NULL
         )
+        ''')
+
+        cur.close()
+
+
+class EditorDB:
+    def __init__(self, db):
+        self._con = sqlite3.connect(db, autocommit=True)
+
+    def register(self, name, password):
+        hash_str = sha256(password.encode()).hexdigest()
+
+        cur = self._con.cursor()
+
+        cur.execute(
+            'INSERT INTO editor(name, password) VALUES (?, ?)',
+            (name, hash_str)
+        )
+
+        cur.close()
+
+    def authenticate(self, name, password):
+        hash_str = sha256(password.encode()).hexdigest()
+
+        cur = self._con.cursor()
+
+        stored_hash = cur.execute(
+            'SELECT password FROM editor WHERE name=?',
+            (name,)
+        ).fetchone()[0]
+
+        cur.close()
+
+        if hash_str == stored_hash:
+            return True
+
+        return False
+
+    def is_approved(self, name):
+        cur = self._con.cursor()
+
+        approved = cur.execute(
+            'SELECT approved FROM editor WHERE name=?',
+            (name,)
+        ).fetchone()[0]
+
+        cur.close()
+
+        if approved:
+            return True
+
+        return False
+
+    def approve(self, name):
+        cur = self._con.cursor()
+
+        cur.execute(
+            'UPDATE TABLE editor SET approved = 1 WHERE name=?',
+            (name,)
+        )
+
+        cur.close()
+
+    def delete(self, name):
+        cur = self._con.cursor()
+
+        cur.execute(
+            'DELETE FROM editor WHERE name=?',
+            (name,)
+        )
+
+        cur.close()
+
+    def initialize(self):
+        cur = self._con.cursor()
+
+        cur.execute('''
+        CREATE TABLE IF NOT EXISTS editor (
+        name TEXT PRIMARY KEY,
+        password TEXT NOT NULL,
+        approved INTEGER NOT NULL CHECK (approved IN (0, 1)) DEFAULT (0)
         ''')
 
         cur.close()
