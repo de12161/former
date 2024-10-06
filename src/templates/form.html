@@ -5,8 +5,10 @@
 
 {% block nav %}
 <a class="nav-item" href="{{ url_for('index_page.index') }}">Назад</a>
+{% if editor_mode %}
 <a class="nav-item" href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
 <a class="nav-item" href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}

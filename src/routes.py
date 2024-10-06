@@ -1,6 +1,6 @@
 import requests.exceptions
 
-from flask import Blueprint, request, flash, g, session, redirect, url_for, render_template, send_file
+from flask import Blueprint, request, flash, g, session, redirect, url_for, render_template, send_file, abort
 
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import SubmitField
@@ -23,7 +23,7 @@ def index():
     for form_label, form_id in g.db.get_forms_data().items():
         forms[form_label] = form_id
 
-    return render_template('index.html', forms=forms)
+    return render_template('index.html', forms=forms, editor_mode=g.editor_mode)
 
 
 form_page = Blueprint('form_page', 'form_page', template_folder='templates')
@@ -39,7 +39,7 @@ def show(form_id):
     if request.method == 'GET':
         if not health_check(g.dfs_url):
             flash('Не удалось подключиться к API')
-        return render_template('form.html', form=form, form_label=form_label)
+        return render_template('form.html', form=form, form_label=form_label, editor_mode=g.editor_mode)
 
     if not form.validate_on_submit():
         flash_errors(form)
@@ -100,6 +100,9 @@ def show(form_id):
 form_editor_page = Blueprint('form_editor_page', 'form_editor_page', template_folder='templates')
 @form_editor_page.route('/form-editor', methods=['GET', 'POST'])
 def form_editor():
+    if not g.editor_mode:
+        return abort(401)
+
     if 'custom_fields' in session:
         custom_fields = session['custom_fields']
     else:
@@ -207,6 +210,9 @@ def form_editor():
 field_editor_page = Blueprint('field_editor_page', 'field_editor_page', template_folder='templates')
 @field_editor_page.route('/field-editor', methods=['GET', 'POST'])
 def field_editor():
+    if not g.editor_mode:
+        return abort(401)
+
     if 'choices' in session:
         choices = session['choices']
     else:

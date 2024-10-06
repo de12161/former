@@ -22,6 +22,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 dfs_url = config['DFS']['url']
+editor_access = config.getboolean('Editor_access', 'enabled')
 
 db_name = 'forms.db'
 FormDB(db_name).initialize()
@@ -83,3 +84,4 @@ def load_globals():
     g.dfs_url = dfs_url
     g.fields = fields
     g.predefined_fields = predefined_fields
+    g.editor_mode = bool(editor_access)
