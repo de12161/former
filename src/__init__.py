@@ -1,4 +1,5 @@
 import configparser
+import os
 
 from flask import Flask, g
 
@@ -12,7 +13,10 @@ from .routes import index_page, form_page, form_editor_page, field_editor_page
 from .database import FormDB
 from .utils import Fields
 
-from secrets import token_urlsafe
+from dotenv import load_dotenv
+
+load_dotenv('.flaskenv')
+load_dotenv()
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -29,13 +33,12 @@ if not config['Database'].getboolean('initialized'):
 
 app = Flask(__name__)
 
+app.secret_key = os.environ.get('SECRET_KEY')
+
 app.register_blueprint(index_page)
 app.register_blueprint(form_page)
 app.register_blueprint(form_editor_page)
 app.register_blueprint(field_editor_page)
-
-app.config.from_object('flask_config')
-app.secret_key = token_urlsafe(16)  # delete later
 
 csrf = CSRFProtect(app)
 
