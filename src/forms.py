@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField
 from wtforms.fields.choices import SelectField
+from wtforms.fields.simple import PasswordField
 from wtforms.validators import InputRequired, Regexp
 
 import re
@@ -48,3 +49,11 @@ class SaveSelectField(FlaskForm):
     field_label = StringField('Название поля', validators=[InputRequired(message='Поле должно иметь название'), Regexp(re.compile(r'^.*[^0-9].*$'), message='Название поля не может состоять полностью из цифр')])
     save_field = SubmitField('Сохранить поле')
     delete_field = SubmitField('Удалить поле')
+
+
+class AuthForm(FlaskForm):
+    username = StringField('Имя пользователя', validators=[InputRequired(message='Имя пользователя обязательно')])
+    password = PasswordField('Пароль', validators=[InputRequired(message='Пароль обязателен')])
+    repeat_pass = PasswordField('Повторите пароль')
+    send_rq = SubmitField('Отправить запрос на доступ')
+    authorize = SubmitField('Авторизация')
