@@ -267,12 +267,6 @@ class FormDB:
     def initialize(self):
         cur = self._con.cursor()
 
-        cur.execute('DROP TABLE IF EXISTS form')
-        cur.execute('DROP TABLE IF EXISTS select_field')
-        cur.execute('DROP TABLE IF EXISTS field')
-        cur.execute('DROP TABLE IF EXISTS choice')
-        cur.execute('DROP TABLE IF EXISTS form_select')
-
         cur.execute('''
         CREATE TABLE IF NOT EXISTS form (
         id_form INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -310,3 +304,5 @@ class FormDB:
         name_select TEXT NOT NULL
         )
         ''')
+
+        cur.close()

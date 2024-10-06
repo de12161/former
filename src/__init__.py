@@ -24,12 +24,7 @@ config.read('config.ini')
 dfs_url = config['DFS']['url']
 
 db_name = config['Database']['name']
-if not config['Database'].getboolean('initialized'):
-    FormDB(db_name).initialize()
-
-    config['Database']['initialized'] = 'true'
-    with open('config.ini', 'w') as config_file:
-        config.write(config_file)
+FormDB(db_name).initialize()
 
 app = Flask(__name__)
 
