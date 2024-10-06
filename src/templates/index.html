@@ -7,8 +7,9 @@
 {% if editor_mode %}
 <a class="nav-item" href="{{ url_for('form_editor_page.form_editor') }}">Редактор форм</a>
 <a class="nav-item" href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
+{% if not editor_access %}<a class="nav-item" href="{{ url_for('auth_page.unauth') }}">Выход из режима редактора</a>{% endif %}
 {% else %}
-<a class="nav-item" href="{{ url_for('auth_page.auth') }}">Авторизация</a>
+<a class="nav-item" href="{{ url_for('auth_page.auth') }}">Войти в режим редактора</a>
 {% endif %}
 {% endblock %}
 

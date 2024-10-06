@@ -13,6 +13,7 @@ from sqlite3 import IntegrityError
 from .utils import get_editor_choices, generate_fields, flash_errors, send_template, health_check, img_to_bytes
 from .forms import create_form, create_editor, SaveFormForm, SelectFieldEditor, SaveSelectField, AuthForm
 
+
 index_page = Blueprint('index_page', 'index_page', template_folder='templates')
 @index_page.get('/')
 @index_page.get('/forms')
@@ -23,7 +24,7 @@ def index():
     for form_label, form_id in g.db.get_forms_data().items():
         forms[form_label] = form_id
 
-    return render_template('index.html', forms=forms, editor_mode=editor_mode)
+    return render_template('index.html', forms=forms, editor_mode=editor_mode, editor_access=g.editor_access)
 
 
 form_page = Blueprint('form_page', 'form_page', template_folder='templates')
@@ -113,7 +114,7 @@ def form_editor():
     preview = create_form(generate_fields(custom_fields, g.fields))
 
     if request.method == 'GET':
-        return render_template('form_editor.html', preview=preview, editor=editor, save=save)
+        return render_template('form_editor.html', preview=preview, editor=editor, save=save, editor_access=g.editor_access)
 
     if save.delete_form.data:
         if not save.validate():
@@ -223,7 +224,7 @@ def field_editor():
     save = SaveSelectField()
 
     if request.method == 'GET':
-        return render_template('field_editor.html', preview=preview, editor=editor, save=save)
+        return render_template('field_editor.html', preview=preview, editor=editor, save=save, editor_access=g.editor_access)
 
     if save.delete_field.data:
         if not save.validate():
@@ -345,3 +346,9 @@ def auth():
         return redirect(url_for('auth_page.auth'))
 
     return redirect(url_for('auth_page.auth'))
+
+
+@auth_page.route('/unauth')
+def unauth():
+    session['authorized'] = False
+    return redirect(url_for('index_page.index'))

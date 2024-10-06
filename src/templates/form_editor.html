@@ -7,6 +7,7 @@
 <a class="nav-item" href="{{ url_for('index_page.index') }}">Формы</a>
 <b class="nav-item" >Редактор форм</b>
 <a class="nav-item" href="{{ url_for('field_editor_page.field_editor') }}">Редактор полей выбора</a>
+{% if not editor_access %}<a class="nav-item" href="{{ url_for('auth_page.unauth') }}">Выход из режима редактора</a>{% endif %}
 {% endblock %}
 
 {% block content %}
