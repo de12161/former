@@ -326,19 +326,19 @@ class EditorDB:
         cur.close()
 
     def authenticate(self, name, password):
+        if not self.search(name):
+            return False
+
         hash_str = sha256(password.encode()).hexdigest()
 
         cur = self._con.cursor()
 
-        try:
-            stored_hash = cur.execute(
-                'SELECT password FROM editor WHERE name=?',
-                (name,)
-            ).fetchone()[0]
-        except TypeError:
-            return False
-        finally:
-            cur.close()
+        stored_hash = cur.execute(
+            'SELECT password FROM editor WHERE name=?',
+            (name,)
+        ).fetchone()[0]
+
+        cur.close()
 
         if hash_str == stored_hash:
             return True
@@ -346,31 +346,39 @@ class EditorDB:
         return False
 
     def is_approved(self, name):
+        if not self.search(name):
+            return False
+
         cur = self._con.cursor()
 
-        try:
-            approved = cur.execute(
-                'SELECT approved FROM editor WHERE name=?',
-                (name,)
-            ).fetchone()[0]
-        except TypeError:
-            return False
-        finally:
-            cur.close()
+        approved = cur.execute(
+            'SELECT approved FROM editor WHERE name=?',
+            (name,)
+        ).fetchone()[0]
+
+        cur.close()
 
         return bool(approved)
 
     def approve(self, name):
+        if not self.search(name):
+            return False
+
         cur = self._con.cursor()
 
         cur.execute(
-            'UPDATE TABLE editor SET approved = 1 WHERE name=?',
+            'UPDATE editor SET approved = 1 WHERE name=?',
             (name,)
         )
 
         cur.close()
 
+        return True
+
     def delete(self, name):
+        if not self.search(name):
+            return False
+
         cur = self._con.cursor()
 
         cur.execute(
@@ -379,6 +387,26 @@ class EditorDB:
         )
 
         cur.close()
+
+        return True
+
+    def search(self, name):
+        cur = self._con.cursor()
+
+        editor = cur.execute('SELECT name, approved FROM editor WHERE name=?', (name,)).fetchone()
+
+        cur.close()
+
+        return editor
+
+    def get_by_approval(self, approval):
+        cur = self._con.cursor()
+
+        rows = cur.execute('SELECT name, approved FROM editor WHERE approved=?', (int(approval),)).fetchall()
+
+        cur.close()
+
+        return rows
 
     def initialize(self):
         cur = self._con.cursor()
