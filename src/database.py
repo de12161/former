@@ -352,10 +352,7 @@ class EditorDB:
 
         cur.close()
 
-        if approved:
-            return True
-
-        return False
+        return bool(approved)
 
     def approve(self, name):
         cur = self._con.cursor()
