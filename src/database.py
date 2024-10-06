@@ -330,12 +330,15 @@ class EditorDB:
 
         cur = self._con.cursor()
 
-        stored_hash = cur.execute(
-            'SELECT password FROM editor WHERE name=?',
-            (name,)
-        ).fetchone()[0]
-
-        cur.close()
+        try:
+            stored_hash = cur.execute(
+                'SELECT password FROM editor WHERE name=?',
+                (name,)
+            ).fetchone()[0]
+        except TypeError:
+            return False
+        finally:
+            cur.close()
 
         if hash_str == stored_hash:
             return True
@@ -345,12 +348,15 @@ class EditorDB:
     def is_approved(self, name):
         cur = self._con.cursor()
 
-        approved = cur.execute(
-            'SELECT approved FROM editor WHERE name=?',
-            (name,)
-        ).fetchone()[0]
-
-        cur.close()
+        try:
+            approved = cur.execute(
+                'SELECT approved FROM editor WHERE name=?',
+                (name,)
+            ).fetchone()[0]
+        except TypeError:
+            return False
+        finally:
+            cur.close()
 
         return bool(approved)
 
