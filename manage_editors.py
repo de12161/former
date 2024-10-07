@@ -6,7 +6,7 @@ def search_data(db):
     name = input('Введите имя: ')
 
     if editor := db.search(name):
-        return to_str(editor)
+        return to_str(editor, len(max([str(item) for item in editor], key=len)))
 
     return f'Имя {name} не найдено'
 
@@ -26,9 +26,11 @@ def get_by_approval(db, approval):
     if not rows:
         return 'Пусто'
 
+    length = get_max_length(rows)
+
     rows_str = []
     for row in rows:
-        rows_str.append(to_str(row))
+        rows_str.append(to_str(row, length))
 
     return '\n'.join(rows_str)
 
@@ -42,17 +44,24 @@ def delete_data(db):
     return f'Имя {name} не найдено'
 
 
-def to_str(row):
+def to_str(row, length):
     items = []
 
-    row_str = [str(item) for item in row]
-
-    length = len(max(row_str, key=len))
-
-    for item in row_str:
+    for item in row:
         items.append(f'{item:{length}}')
 
     return ' | '.join(items)
+
+
+def get_max_length(rows):
+    length = -1
+
+    for row in rows:
+        str_row = [str(item) for item in row]
+        if (rl := len(max(str_row, key=len))) > length:
+            length = rl
+
+    return length
 
 
 def main():
@@ -79,9 +88,11 @@ def main():
             rows.extend(db.get_by_approval(False))
             rows.extend(db.get_by_approval(True))
 
+            length = get_max_length(list(rows))
+
             print('-' * 20)
             for row in rows:
-                print(to_str(row))
+                print(to_str(row, length))
             print('-' * 20)
         elif cmd == '2':
             print('-' * 20)
