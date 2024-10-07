@@ -2,11 +2,11 @@ html {
     background-color: #dddddd;
 }
 
-nav {
+.header {
     margin: 1rem;
     border: 1px solid;
     padding: 1rem;
-    align: center;
+    text-align: center;
     background-color: white;
     border-radius: 2rem;
 }
@@ -26,13 +26,6 @@ nav {
 }
 
 .content {
-    border-radius: 2rem;
-    background-color: white;
-    border: 1px solid;
-}
-
-.header {
-    padding: 0.5rem;
     border-radius: 2rem;
     background-color: white;
     border: 1px solid;
