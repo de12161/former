@@ -329,7 +329,10 @@ def auth():
             flash('Запросы доступа на данный момент не принимаются')
             return redirect(url_for('auth_page.auth'))
 
-        g.editors.register(username, password)
+        if not g.editors.register(username, password):
+            flash('Запрос с таким именем уже был отправлен')
+            return redirect(url_for('auth_page.auth'))
+
         flash('Запрос отправлен')
         return redirect(url_for('auth_page.auth'))
 

@@ -314,6 +314,9 @@ class EditorDB:
         self._con = sqlite3.connect(db, autocommit=True)
 
     def register(self, name, password):
+        if self.search(name):
+            return False
+
         hash_str = sha256(password.encode()).hexdigest()
 
         cur = self._con.cursor()
@@ -324,6 +327,8 @@ class EditorDB:
         )
 
         cur.close()
+
+        return True
 
     def authenticate(self, name, password):
         if not self.search(name):
