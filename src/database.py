@@ -390,6 +390,13 @@ class EditorDB:
 
         return True
 
+    def delete_all_nonapproved(self):
+        cur = self._con.cursor()
+
+        cur.execute('DELETE FROM editor WHERE approved=0')
+
+        cur.close()
+
     def search(self, name):
         cur = self._con.cursor()
 
