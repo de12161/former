@@ -15,8 +15,12 @@
 
 {% block content %}
 <div class="form-list">
-{%- for form_label, form_id in forms.items() %}
-    <a class="form-link" href="{{ url_for('form_page.show', form_id=form_id) }}">{{ form_label }}</a>
-{% endfor %}
+    {%- if forms %}
+        {%- for form_label, form_id in forms.items() %}
+            <a class="form-link" href="{{ url_for('form_page.show', form_id=form_id) }}">{{ form_label }}</a>
+        {% endfor %}
+    {%- else %}
+        <p>Форм нет</p>
+    {% endif %}
 </div>
 {% endblock %}
